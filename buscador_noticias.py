@@ -25,9 +25,17 @@ from difflib import SequenceMatcher
 from email.utils import parsedate_to_datetime
 from typing import Optional
 
-import tkinter as tk
-from tkinter import messagebox
-import customtkinter as ctk
+try:
+    import tkinter as tk
+    from tkinter import messagebox
+    import customtkinter as ctk
+    GUI_AVAILABLE = True
+except ImportError:
+    GUI_AVAILABLE = False
+    class DummyCTk:
+        pass
+    class ctk:
+        CTk = DummyCTk
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -753,8 +761,9 @@ MAPA_CATEGORIAS = {
     "Colombia": ["colombia"],
 }
 
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+if GUI_AVAILABLE:
+    ctk.set_appearance_mode("dark")
+    ctk.set_default_color_theme("blue")
 
 
 class RedirectText:
@@ -984,5 +993,8 @@ class AppNoticiasIDEAS(ctk.CTk):
 
 
 if __name__ == "__main__":
-    app = AppNoticiasIDEAS()
-    app.mainloop()
+    if GUI_AVAILABLE:
+        app = AppNoticiasIDEAS()
+        app.mainloop()
+    else:
+        print("La interfaz gráfica (CustomTkinter) no está disponible en este entorno.")
