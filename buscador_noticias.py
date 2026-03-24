@@ -323,9 +323,13 @@ def _fecha_display(dt):
 
 import base64
 
-def _esta_bloqueado(url, titulo="", descripcion=""):
+def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss=""):
     """Retorna (bloqueado, razón)."""
     url_lower = url.lower()
+    fuente_lower = fuente_rss.lower()
+    
+    if "el tiempo" in fuente_lower or "portafolio" in fuente_lower:
+        return True, f"Feed RSS Fuente: {fuente_rss}"
     
     # ── Decodificar URL en base64 de Google News ──
     if "news.google.com/rss/articles/" in url_lower:
@@ -342,7 +346,7 @@ def _esta_bloqueado(url, titulo="", descripcion=""):
         if dominio in url_lower:
             return True, f"Dominio: {dominio}"
             
-    texto_lower = f"{titulo} {descripcion}".lower()
+    texto_lower = f"{titulo} {descripcion} {fuente_rss}".lower()
     # Versión minúscula de las firmas
     firmas_lower = [f.lower() for f in FIRMAS_BLOQUEADAS] + [
         "- el tiempo", "| el tiempo", " - el tiempo",
@@ -430,11 +434,13 @@ def _parsear_feed(xml_str, nombre_fuente):
                 url = link_el.get("href", "") or link_el.text or ""
             fecha_str = _get("updated") or _get("published") or _get("{http://www.w3.org/2005/Atom}updated")
             descripcion = _get("summary") or _get("content")
+            fuente_rss = _get("source") or _get("atom:source", "atom:source") or ""
         else:
             titulo = _get("title")
             url = _get("link") or _get("guid")
             fecha_str = _get("pubDate") or _get("dc:date") or _get("{http://purl.org/dc/elements/1.1/}date")
             descripcion = _get("description") or _get("summary")
+            fuente_rss = _get("source") or ""
 
         if not titulo or not url:
             continue
@@ -445,7 +451,7 @@ def _parsear_feed(xml_str, nombre_fuente):
             continue  # Descartado: fecha ausente o inválida
 
         # ── Filtro bloqueados ──
-        bloqueado, _ = _esta_bloqueado(url, titulo, descripcion)
+        bloqueado, _ = _esta_bloqueado(url, titulo, descripcion, fuente_rss)
         if bloqueado:
             continue
 
