@@ -3,6 +3,7 @@ import datetime
 import os
 import io
 import time
+import sys
 
 # Configuramos la página de Streamlit
 st.set_page_config(
