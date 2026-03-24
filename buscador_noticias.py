@@ -873,18 +873,32 @@ class AppNoticiasIDEAS(ctk.CTk):
         # Selector de fecha
         fr_fecha = ctk.CTkFrame(panel_der, fg_color="transparent")
         fr_fecha.pack(fill="x", padx=20, pady=(5, 10))
-        ctk.CTkLabel(fr_fecha, text="Filtrar por fecha:", font=ctk.CTkFont(size=12)).pack(anchor="w")
+        
+        self.var_usar_fecha = ctk.BooleanVar(value=True)
+        ctk.CTkSwitch(fr_fecha, text="Filtrar por fecha exacta", 
+                      variable=self.var_usar_fecha, font=ctk.CTkFont(weight="bold")).pack(anchor="w", pady=(0, 5))
 
         fr_inp = ctk.CTkFrame(fr_fecha, fg_color="transparent")
         fr_inp.pack(fill="x", pady=(3, 0))
-        self.entry_fecha = ctk.CTkEntry(fr_inp, placeholder_text="YYYY-MM-DD (ej: 2026-03-23)", width=200)
-        self.entry_fecha.pack(side="left", padx=(0, 8))
-        ctk.CTkButton(fr_inp, text="Hoy", width=60, fg_color="#444444", hover_color="#666666",
-                       command=self._poner_hoy).pack(side="left", padx=(0, 5))
-        ctk.CTkButton(fr_inp, text="✕", width=35, fg_color="#882222", hover_color="#AA4444",
-                       command=lambda: self.entry_fecha.delete(0, "end")).pack(side="left")
+        
+        try:
+            from tkcalendar import DateEntry
+            from datetime import date
+            self.entry_fecha = DateEntry(fr_inp, width=15,
+                                       background='#1f538d', foreground='white', borderwidth=0,
+                                       font=('Century Gothic', 11),
+                                       date_pattern='y-mm-dd', state="readonly")
+            self.entry_fecha.pack(side="left", padx=(0, 8), pady=3)
+        except ImportError:
+            self.entry_fecha = ctk.CTkEntry(fr_inp, placeholder_text="YYYY-MM-DD (ej: 2026-03-23)", width=200)
+            self.entry_fecha.pack(side="left", padx=(0, 8))
+            ctk.CTkButton(fr_inp, text="Hoy", width=60, fg_color="#444444", hover_color="#666666",
+                           command=self._poner_hoy).pack(side="left", padx=(0, 5))
+            ctk.CTkButton(fr_inp, text="✕", width=35, fg_color="#882222", hover_color="#AA4444",
+                           command=lambda: self.entry_fecha.delete(0, "end")).pack(side="left")
+
         ctk.CTkLabel(fr_fecha,
-                      text="Solo muestra noticias de esa fecha exacta.\nSi está vacío, muestra todas las recientes.",
+                      text="Si desactivas el switch, mostrará noticias recientes sin importar el día.",
                       font=ctk.CTkFont(size=10), text_color="gray").pack(anchor="w", pady=(3, 0))
 
         # Info sobre fechas
@@ -919,14 +933,15 @@ class AppNoticiasIDEAS(ctk.CTk):
             messagebox.showwarning("Atención", "Debes seleccionar al menos una categoría.")
             return
 
-        fecha_txt = self.entry_fecha.get().strip()
         fecha_obj = None
-        if fecha_txt:
-            try:
-                fecha_obj = datetime.strptime(fecha_txt, "%Y-%m-%d").date()
-            except ValueError:
-                messagebox.showwarning("Fecha inválida", "Formato: YYYY-MM-DD\nEjemplo: 2026-03-23")
-                return
+        if self.var_usar_fecha.get():
+            fecha_txt = self.entry_fecha.get().strip()
+            if fecha_txt:
+                try:
+                    fecha_obj = datetime.strptime(fecha_txt, "%Y-%m-%d").date()
+                except ValueError:
+                    messagebox.showwarning("Fecha inválida", "Formato: YYYY-MM-DD\nEjemplo: 2026-03-23")
+                    return
 
         self.btn_ejecutar.configure(state="disabled")
         self.consola.delete("0.0", "end")
