@@ -13,15 +13,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Ocultar menú de Streamlit y footer para aspecto más limpio
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+# Footer default oculto desde configuración de Streamlit. No ocultamos header para no tapar botón del sidebar.
 
 # Importar el motor principal
 try:
