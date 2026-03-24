@@ -126,8 +126,8 @@ if st.button("▶ INICIAR BÚSQUEDA Y GENERAR EXCEL", type="primary", use_contai
             # Como Streamlit necesita un buffer en memoria para descargar, usamos io.BytesIO
             output = io.BytesIO()
             
-            # Modificamos temporalmente el save del generador
-            generador.wb.save(output)
+            # Llamar al método generar para que pueble las hojas, pasándole el buffer de memoria
+            generador.generar(output)
             output.seek(0)
             
             st.download_button(
