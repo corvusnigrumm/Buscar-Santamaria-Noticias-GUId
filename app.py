@@ -93,85 +93,81 @@ if st.button("▶ INICIAR BÚSQUEDA Y GENERAR EXCEL", type="primary", use_contai
         st.markdown("---")
         
         with st.spinner("🔍 Buscando y verificando noticias en tiempo real... (esto puede tardar unos segundos)"):
-            
-            # Ejecutar scraper web
             sys_stdout_backup = sys.stdout
-            sys.stdout = io.StringIO() # Capturar logs para limpiar la salida
-            
+            sys.stdout = io.StringIO()
             try:
-                # Inicio
                 t0 = time.time()
                 resultado = buscar_noticias(
                     categorias_seleccionadas=cats_internas_list,
                     fecha_filtro=fecha_filtro,
-                    verbose=False # silenciar logging pesado
+                    verbose=False
                 )
                 dt = time.time() - t0
-                
+                resultado['tiempo_ejecucion'] = dt
+                st.session_state['resultado_busqueda'] = resultado
             finally:
                 sys.stdout = sys_stdout_backup
+
+# -- Resultados Fuera del Botón --
+if 'resultado_busqueda' in st.session_state:
+    resultado = st.session_state['resultado_busqueda']
+    noticias = resultado.get("noticias", [])
+    dt = resultado.get("tiempo_ejecucion", 0)
+    
+    st.markdown("---")
+    
+    if not noticias:
+        st.error(resultado.get("notificacion", "No se encontraron noticias con esos filtros."))
+    else:
+        st.success(f"✅ Búsqueda terminada en {dt:.1f} segundos. Se encontraron **{len(noticias)}** artículos únicos.")
+        
+        # Generar Excel en Memoria
+        generador = GeneradorExcelIDEAS(noticias)
+        excel_name = f"Noticias_IDEAS_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        
+        output = io.BytesIO()
+        generador.generar(output)
+        output.seek(0)
+        
+        st.download_button(
+            label="📥 DESCARGAR RESULTADOS (.XLSX)",
+            data=output,
+            file_name=excel_name,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
+            type="primary"
+        )
+        
+        st.markdown("---")
+        
+        st.subheader("📊 Previsualización de Resultados")
+        
+        tabla_preview = []
+        for art in noticias:
+            tabla_preview.append({
+                "Fecha": art.get("fecha_str", ""),
+                "Categoría": art.get("categoria", ""),
+                "Fuente": art.get("fuente", ""),
+                "Título": art.get("titulo", ""),
+                "URL": art.get("url", "")
+            })
             
-            noticias = resultado["noticias"]
-            
-        # -- Resultados --
-        if not noticias:
-            st.error(resultado.get("notificacion", "No se encontraron noticias con esos filtros."))
-        else:
-            st.success(f"✅ Búsqueda terminada en {dt:.1f} segundos. Se encontraron **{len(noticias)}** artículos únicos.")
-            
-            # Generar Excel en Memoria
-            generador = GeneradorExcelIDEAS(noticias)
-            excel_name = f"Noticias_IDEAS_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-            
-            # Como Streamlit necesita un buffer en memoria para descargar, usamos io.BytesIO
-            output = io.BytesIO()
-            
-            # Llamar al método generar para que pueble las hojas, pasándole el buffer de memoria
-            generador.generar(output)
-            output.seek(0)
-            
-            st.download_button(
-                label="📥 DESCARGAR RESULTADOS (.XLSX)",
-                data=output,
-                file_name=excel_name,
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True,
-                type="primary"
-            )
-            
-            st.markdown("---")
-            
-            # Mostrar Tabla Preview
-            st.subheader("📊 Previsualización de Resultados")
-            
-            # Convertir a formato amigable para st.dataframe
-            tabla_preview = []
+        st.dataframe(tabla_preview, use_container_width=True, height=400)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Noticias por Categoría:**")
+            cat_count = {}
             for art in noticias:
-                tabla_preview.append({
-                    "Fecha": art.get("fecha_str", ""),
-                    "Categoría": art.get("categoria", ""),
-                    "Fuente": art.get("fuente", ""),
-                    "Título": art.get("titulo", ""),
-                    "URL": art.get("url", "")
-                })
-                
-            st.dataframe(tabla_preview, use_container_width=True, height=400)
+                c = art["categoria"]
+                cat_count[c] = cat_count.get(c, 0) + 1
+            for c, count in sorted(cat_count.items(), key=lambda x: -x[1]):
+                st.write(f"- {c}: {count}")
+        with col2:
+            st.markdown("**Fuentes Exitosas:**")
+            for f, count in sorted(resultado.get("conteo_fuentes", {}).items(), key=lambda x: -x[1]):
+                if count > 0:
+                    st.write(f"- {f}: {count}")
             
-            # Estadísticas debajo
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("**Noticias por Categoría:**")
-                cat_count = {}
-                for art in noticias:
-                    c = art["categoria"]
-                    cat_count[c] = cat_count.get(c, 0) + 1
-                for c, count in sorted(cat_count.items(), key=lambda x: -x[1]):
-                    st.write(f"- {c}: {count}")
-            with col2:
-                st.markdown("**Fuentes Exitosas:**")
-                for f, count in sorted(resultado.get("conteo_fuentes", {}).items(), key=lambda x: -x[1]):
-                    if count > 0:
-                        st.write(f"- {f}: {count}")
-                
-                if resultado.get("fuentes_fallidas"):
-                    st.error(f"Fuentes caídas o lentas: {', '.join(resultado['fuentes_fallidas'])}")
+            if resultado.get("fuentes_fallidas"):
+                st.error(f"Fuentes caídas o lentas: {', '.join(resultado['fuentes_fallidas'])}")
