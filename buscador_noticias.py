@@ -321,16 +321,42 @@ def _fecha_display(dt):
 # FILTRO DE FUENTES BLOQUEADAS
 # ═══════════════════════════════════════════════════════════════
 
+import base64
+
 def _esta_bloqueado(url, titulo="", descripcion=""):
     """Retorna (bloqueado, razón)."""
     url_lower = url.lower()
+    
+    # ── Decodificar URL en base64 de Google News ──
+    if "news.google.com/rss/articles/" in url_lower:
+        try:
+            b64_part = url_lower.split("articles/")[-1].split("?")[0]
+            # Reparar padding
+            b64_part += "=" * ((4 - len(b64_part) % 4) % 4)
+            decodificado = base64.urlsafe_b64decode(b64_part).decode('utf-8', errors='ignore').lower()
+            url_lower += " " + decodificado
+        except Exception:
+            pass
+
     for dominio in DOMINIOS_BLOQUEADOS:
         if dominio in url_lower:
             return True, f"Dominio: {dominio}"
-    texto = f"{titulo} {descripcion}"
-    for firma in FIRMAS_BLOQUEADAS:
-        if firma in texto:
+            
+    texto_lower = f"{titulo} {descripcion}".lower()
+    # Versión minúscula de las firmas
+    firmas_lower = [f.lower() for f in FIRMAS_BLOQUEADAS] + [
+        "- el tiempo", "| el tiempo", " - el tiempo",
+        "- eltiempo", "el tiempo play"
+    ]
+    
+    for firma in firmas_lower:
+        if firma in texto_lower:
             return True, f"Firma: '{firma}'"
+            
+    # Última revisión por fuente oculta en etiqueta source de Google News
+    if 'source="el tiempo"' in texto_lower or '>el tiempo</' in texto_lower:
+        return True, "Firma oculta RSS: El Tiempo"
+        
     return False, ""
 
 
