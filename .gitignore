@@ -1,0 +1,15 @@
+# Build artifacts
+build/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+*.spec
+
+# Excel output
+TABLA DE NOTICIAS *.xlsx
+
+# IDE
+.vscode/
+.idea/
+*.swp
