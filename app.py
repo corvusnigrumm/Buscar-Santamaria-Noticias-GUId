@@ -65,9 +65,22 @@ with st.sidebar:
             categorias_seleccionadas_gui.append(cat)
             
     st.markdown("---")
-    st.header("2. Filtros Adicionales")
+    st.header("2. Tipo de Noticias")
+    tipo_opcion = st.radio(
+        "Selecciona el tipo:",
+        ["🌐 Ambas", "🇨🇴 Nacional", "🌍 Internacional"],
+        index=0,
+        horizontal=True
+    )
+    mapa_tipo = {"🌐 Ambas": "ambas", "🇨🇴 Nacional": "nacional", "🌍 Internacional": "internacional"}
+    tipo_noticias = mapa_tipo.get(tipo_opcion, "ambas")
+
+    filtrar_argentina = st.checkbox("🇦🇷 Filtrar noticias de Argentina", value=True)
+
+    st.markdown("---")
+    st.header("3. Filtros Adicionales")
     
-    # Checkbox para usar fecha o no (Streamlit date_input no permite valores None vacío fácilmente)
+    # Checkbox para usar fecha o no
     usar_fecha = st.checkbox("Filtrar por fecha exacta", value=True)
     if usar_fecha:
         fecha_filtro = st.date_input("Selecciona la fecha", datetime.date.today())
@@ -100,7 +113,9 @@ if st.button("▶ INICIAR BÚSQUEDA Y GENERAR EXCEL", type="primary", use_contai
                 resultado = buscar_noticias(
                     categorias_seleccionadas=cats_internas_list,
                     fecha_filtro=fecha_filtro,
-                    verbose=False
+                    verbose=False,
+                    tipo_noticias=tipo_noticias,
+                    filtrar_argentina=filtrar_argentina,
                 )
                 dt = time.time() - t0
                 resultado['tiempo_ejecucion'] = dt

@@ -92,137 +92,348 @@ TIMEOUT = 12
 # ═══════════════════════════════════════════════════════════════
 
 FUENTES_RSS = [
+    # ══════════════════════════════════════════════════════════════
+    #  FUENTES NACIONALES (Colombia)
+    # ══════════════════════════════════════════════════════════════
+
     # ── COLOMBIA — El Heraldo ─────────────────────────────────────
     {"nombre": "El Heraldo",                "url": "https://www.elheraldo.co/rss.xml",
-     "categorias": ["general", "barranquilla", "judicial", "politica", "deportes", "economia", "cultura", "salud", "tecnologia", "internacional"]},
+     "categorias": ["general", "barranquilla", "judicial", "politica", "deportes", "economia", "cultura", "salud", "tecnologia", "internacional"],
+     "tipo": "nacional"},
 
     # ── COLOMBIA — El Colombiano ──────────────────────────────────
     {"nombre": "El Colombiano — Medellín",  "url": "https://www.elcolombiano.com/rss/medellin.xml",
-     "categorias": ["general", "medellin"]},
+     "categorias": ["general", "medellin"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Antioquia", "url": "https://www.elcolombiano.com/rss/antioquia.xml",
-     "categorias": ["general", "antioquia"]},
+     "categorias": ["general", "antioquia"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Colombia",  "url": "https://www.elcolombiano.com/rss/colombia.xml",
-     "categorias": ["general", "politica", "colombia"]},
+     "categorias": ["general", "politica", "colombia"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Negocios",  "url": "https://www.elcolombiano.com/rss/negocios.xml",
-     "categorias": ["economia", "negocios"]},
+     "categorias": ["economia", "negocios"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Deportes",  "url": "https://www.elcolombiano.com/rss/deportes.xml",
-     "categorias": ["deportes"]},
+     "categorias": ["deportes"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Internacional", "url": "https://www.elcolombiano.com/rss/internacional.xml",
-     "categorias": ["internacional"]},
+     "categorias": ["internacional"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Cultura",   "url": "https://www.elcolombiano.com/rss/cultura.xml",
-     "categorias": ["cultura"]},
+     "categorias": ["cultura"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Tendencias","url": "https://www.elcolombiano.com/rss/tendencias.xml",
-     "categorias": ["tendencias", "salud"]},
+     "categorias": ["tendencias", "salud", "vida"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Tecnología","url": "https://www.elcolombiano.com/rss/tecnologia.xml",
-     "categorias": ["tecnologia"]},
+     "categorias": ["tecnologia"],
+     "tipo": "nacional"},
     {"nombre": "El Colombiano — Política",  "url": "https://www.elcolombiano.com/rss/colombia/politica.xml",
-     "categorias": ["politica"]},
+     "categorias": ["politica"],
+     "tipo": "nacional"},
 
     # ── COLOMBIA — El Espectador ──────────────────────────────────
     {"nombre": "El Espectador",             "url": "https://www.elespectador.com/arc/outboundfeeds/rss/",
-     "categorias": ["general", "politica", "judicial", "cultura", "colombia"]},
+     "categorias": ["general", "politica", "judicial", "justicia", "cultura", "colombia"],
+     "tipo": "nacional"},
     {"nombre": "El Espectador — Economía",  "url": "https://www.elespectador.com/arc/outboundfeeds/rss/?outputType=xml&_website=el-espectador&section=/economia",
-     "categorias": ["economia"]},
+     "categorias": ["economia"],
+     "tipo": "nacional"},
 
     # ── COLOMBIA — La República ───────────────────────────────────
     {"nombre": "La República — Economía",   "url": "https://www.larepublica.co/rss/economia.xml",
-     "categorias": ["economia", "negocios"]},
+     "categorias": ["economia", "negocios"],
+     "tipo": "nacional"},
     {"nombre": "La República — Finanzas",   "url": "https://www.larepublica.co/rss/finanzas.xml",
-     "categorias": ["economia", "finanzas"]},
+     "categorias": ["economia", "finanzas"],
+     "tipo": "nacional"},
 
     # ── COLOMBIA — Semana ─────────────────────────────────────────
     {"nombre": "Semana",                    "url": "https://www.semana.com/rss/",
-     "categorias": ["general", "politica", "economia", "cultura", "deportes", "tecnologia", "salud", "internacional", "judicial"]},
+     "categorias": ["general", "politica", "economia", "cultura", "deportes", "tecnologia", "salud", "internacional", "judicial", "justicia", "vida", "virales"],
+     "tipo": "nacional"},
 
     # ── COLOMBIA — La FM ──────────────────────────────────────────
     {"nombre": "La FM — Actualidad",        "url": "https://www.lafm.com.co/rss/actualidad.xml",
-     "categorias": ["general", "politica", "judicial", "colombia"]},
+     "categorias": ["general", "politica", "judicial", "justicia", "colombia"],
+     "tipo": "nacional"},
 
     # ── COLOMBIA — Caracol Radio ──────────────────────────────────
     {"nombre": "Caracol Radio",             "url": "https://caracol.com.co/rss/",
-     "categorias": ["general", "politica", "deportes", "economia", "judicial"]},
+     "categorias": ["general", "politica", "deportes", "economia", "judicial", "justicia"],
+     "tipo": "nacional"},
 
     # ── COLOMBIA — W Radio ────────────────────────────────────────
     {"nombre": "W Radio",                   "url": "https://www.wradio.com.co/rss/",
-     "categorias": ["general", "politica", "deportes", "economia"]},
+     "categorias": ["general", "politica", "deportes", "economia"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Pulzo (Fuentes_SEO) ────────────────────────────
+    {"nombre": "Pulzo",                     "url": "https://www.pulzo.com/feed",
+     "categorias": ["general", "colombia", "virales"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — El Universal Cartagena (Fuentes_SEO) ───────────
+    {"nombre": "El Universal Cartagena",    "url": "https://www.eluniversal.com.co/rss.xml",
+     "categorias": ["general", "colombia"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Vanguardia (Fuentes_SEO) ───────────────────────
+    {"nombre": "Vanguardia",                "url": "https://www.vanguardia.com/rss/",
+     "categorias": ["general", "colombia"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Kienyke (Fuentes_SEO) ──────────────────────────
+    {"nombre": "Kienyke",                   "url": "https://www.kienyke.com/feed",
+     "categorias": ["general", "virales", "cultura"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Asuntos Legales (Fuentes_SEO) ──────────────────
+    {"nombre": "Asuntos Legales",           "url": "https://www.asuntoslegales.com.co/rss/",
+     "categorias": ["justicia", "judicial", "economia"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Valora Analitik (Fuentes_SEO) ──────────────────
+    {"nombre": "Valora Analitik",           "url": "https://www.valoraanalitik.com/feed/",
+     "categorias": ["economia", "finanzas", "negocios"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Forbes Colombia (Fuentes_SEO) ──────────────────
+    {"nombre": "Forbes Colombia",           "url": "https://forbes.co/feed/",
+     "categorias": ["economia", "negocios"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Futbol Red (Fuentes_SEO) ───────────────────────
+    {"nombre": "Fútbol Red",                "url": "https://www.futbolred.com/rss/",
+     "categorias": ["deportes"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Conexión Capital (Fuentes_SEO: Bogotá) ─────────
+    {"nombre": "Conexión Capital",          "url": "https://conexioncapital.co/feed/",
+     "categorias": ["bogota", "general", "colombia"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — El Carro Colombiano (Fuentes_SEO: Motor) ───────
+    {"nombre": "El Carro Colombiano",       "url": "https://www.elcarrocolombiano.com/feed/",
+     "categorias": ["motor"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Blu Radio (Fuentes_SEO) ────────────────────────
+    {"nombre": "Blu Radio",                 "url": "https://www.bluradio.com/rss/",
+     "categorias": ["general", "colombia", "tecnologia"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Radionica (Fuentes_SEO: Cultura) ───────────────
+    {"nombre": "Radionica",                 "url": "https://www.radionica.rocks/feed",
+     "categorias": ["cultura", "vida"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Minuto 30 (Fuentes_SEO) ────────────────────────
+    {"nombre": "Minuto 30",                 "url": "https://www.minuto30.com/feed/",
+     "categorias": ["general", "colombia"],
+     "tipo": "nacional"},
+
+    # ── COLOMBIA — Infobae Colombia ───────────────────────────────
+    {"nombre": "Infobae Colombia",          "url": "https://www.infobae.com/colombia/feed/",
+     "categorias": ["general", "colombia", "politica", "judicial", "justicia"],
+     "tipo": "nacional"},
+
+    # ══════════════════════════════════════════════════════════════
+    #  FUENTES INTERNACIONALES
+    # ══════════════════════════════════════════════════════════════
 
     # ── LATINOAMÉRICA — Bloomberg Línea ───────────────────────────
     {"nombre": "Bloomberg Línea",           "url": "https://www.bloomberglinea.com/arc/outboundfeeds/rss/?outputType=xml",
-     "categorias": ["economia", "negocios", "finanzas", "internacional"]},
+     "categorias": ["economia", "negocios", "finanzas", "internacional"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — BBC Mundo ─────────────────────────────────
     {"nombre": "BBC Mundo",                 "url": "https://feeds.bbci.co.uk/mundo/rss.xml",
-     "categorias": ["general", "internacional", "politica", "economia", "cultura", "tecnologia", "deportes", "salud"]},
+     "categorias": ["general", "internacional", "politica", "economia", "cultura", "tecnologia", "deportes", "salud", "vida"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — DW Español ────────────────────────────────
     {"nombre": "DW Español",                "url": "https://rss.dw.com/xml/rss-es-all",
-     "categorias": ["general", "internacional", "politica", "economia", "cultura", "tecnologia"]},
+     "categorias": ["general", "internacional", "politica", "economia", "cultura", "tecnologia", "vida"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — France 24  ────────────────────────────────
     {"nombre": "France 24 Español",         "url": "https://www.france24.com/es/rss",
-     "categorias": ["general", "internacional", "politica"]},
+     "categorias": ["general", "internacional", "politica"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — CNN Español ───────────────────────────────
     {"nombre": "CNN Español",               "url": "https://cnnespanol.cnn.com/feed/",
-     "categorias": ["general", "internacional", "politica", "economia", "tecnologia", "deportes", "salud"]},
+     "categorias": ["general", "internacional", "politica", "economia", "tecnologia", "deportes", "salud", "vida"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — EFE ───────────────────────────────────────
     {"nombre": "EFE",                       "url": "https://www.efe.com/efe/rss",
-     "categorias": ["general", "internacional"]},
+     "categorias": ["general", "internacional"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — Europa Press ──────────────────────────────
     {"nombre": "Europa Press",              "url": "https://www.europapress.es/rss/rss.aspx",
-     "categorias": ["general", "internacional", "economia"]},
+     "categorias": ["general", "internacional", "economia", "virales"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — Newsweek ──────────────────────────────────
     {"nombre": "Newsweek",                  "url": "https://www.newsweek.com/rss",
-     "categorias": ["general", "internacional", "tecnologia"]},
+     "categorias": ["general", "internacional", "tecnologia"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — NPR ───────────────────────────────────────
     {"nombre": "NPR",                       "url": "https://feeds.npr.org/1001/rss.xml",
-     "categorias": ["general", "internacional"]},
+     "categorias": ["general", "internacional"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — The Guardian ──────────────────────────────
     {"nombre": "The Guardian World",        "url": "https://www.theguardian.com/world/rss",
-     "categorias": ["internacional"]},
+     "categorias": ["internacional"],
+     "tipo": "internacional"},
 
     # ── INTERNACIONAL — NY Times ──────────────────────────────────
     {"nombre": "NY Times World",            "url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-     "categorias": ["internacional"]},
+     "categorias": ["internacional"],
+     "tipo": "internacional"},
 
     # ── LATINOAMÉRICA — El País América ───────────────────────────
     {"nombre": "El País América",           "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
-     "categorias": ["general", "internacional", "politica", "economia", "cultura"]},
-
-    # ── LATINOAMÉRICA — Clarín ────────────────────────────────────
-    {"nombre": "Clarín",                    "url": "https://www.clarin.com/rss/lo-ultimo/",
-     "categorias": ["general", "internacional", "deportes", "economia"]},
-
-    # ── LATINOAMÉRICA — La Nación Argentina ───────────────────────
-    {"nombre": "La Nación Argentina",       "url": "https://www.lanacion.com.ar/arcio/rss/",
-     "categorias": ["general", "internacional", "economia", "politica"]},
+     "categorias": ["general", "internacional", "politica", "economia", "cultura"],
+     "tipo": "internacional"},
 
     # ── LATINOAMÉRICA — RPP Perú ──────────────────────────────────
     {"nombre": "RPP Perú",                  "url": "https://rpp.pe/feed",
-     "categorias": ["general", "internacional"]},
+     "categorias": ["general", "internacional"],
+     "tipo": "internacional"},
 
-    # ── COLOMBIA — Google News ────────────────────────────────────
+    # ── INTERNACIONAL — Independent Español (Fuentes_SEO) ─────────
+    {"nombre": "Independent Español",       "url": "https://www.independentespanol.com/rss",
+     "categorias": ["general", "internacional"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — La Tercera Chile (Fuentes_SEO) ────────────
+    {"nombre": "La Tercera",                "url": "https://www.latercera.com/feed/",
+     "categorias": ["general", "internacional"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — 20 Minutos (Fuentes_SEO) ─────────────────
+    {"nombre": "20 Minutos",                "url": "https://www.20minutos.es/rss/",
+     "categorias": ["general", "internacional", "cultura", "virales"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — El Comercio Ecuador (Fuentes_SEO) ─────────
+    {"nombre": "El Comercio Ecuador",       "url": "https://www.elcomercio.com/feed/",
+     "categorias": ["general", "internacional"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — HuffPost (Fuentes_SEO) ────────────────────
+    {"nombre": "HuffPost",                  "url": "https://www.huffpost.com/section/world-news/feed",
+     "categorias": ["general", "internacional"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — ESPN (Fuentes_SEO: Deportes) ──────────────
+    {"nombre": "ESPN Deportes",             "url": "https://espndeportes.espn.com/espn/rss/news",
+     "categorias": ["deportes"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — Mundo Deportivo (Fuentes_SEO) ─────────────
+    {"nombre": "Mundo Deportivo",           "url": "https://www.mundodeportivo.com/rss/",
+     "categorias": ["deportes"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — Rolling Stone (Fuentes_SEO: Cultura) ──────
+    {"nombre": "Rolling Stone",             "url": "https://www.rollingstone.com/feed/",
+     "categorias": ["cultura"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — Billboard (Fuentes_SEO: Cultura) ──────────
+    {"nombre": "Billboard",                 "url": "https://www.billboard.com/feed/",
+     "categorias": ["cultura"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — Muy Interesante (Fuentes_SEO: Vida) ───────
+    {"nombre": "Muy Interesante",           "url": "https://www.muyinteresante.es/feed/",
+     "categorias": ["vida", "salud", "tecnologia"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — National Geographic (Fuentes_SEO: Vida) ───
+    {"nombre": "National Geographic LA",    "url": "https://www.nationalgeographicla.com/feed",
+     "categorias": ["vida", "cultura"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — Digital Trends (Fuentes_SEO: Tecnología) ──
+    {"nombre": "Digital Trends Español",    "url": "https://es.digitaltrends.com/feed/",
+     "categorias": ["tecnologia"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — Andro4all (Fuentes_SEO: Tecnología) ───────
+    {"nombre": "Andro4all",                 "url": "https://andro4all.com/feed",
+     "categorias": ["tecnologia"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — Car and Driver (Fuentes_SEO: Motor) ───────
+    {"nombre": "Car and Driver",            "url": "https://www.caranddriver.com/es/rss/",
+     "categorias": ["motor"],
+     "tipo": "internacional"},
+
+    # ── INTERNACIONAL — Autobild (Fuentes_SEO: Motor) ─────────────
+    {"nombre": "Autobild",                  "url": "https://www.autobild.es/rss/",
+     "categorias": ["motor"],
+     "tipo": "internacional"},
+
+    # ══════════════════════════════════════════════════════════════
+    #  GOOGLE NEWS — COLOMBIA (nacionales)
+    # ══════════════════════════════════════════════════════════════
     {"nombre": "Google News — Colombia",    "url": "https://news.google.com/rss/search?q=colombia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["general", "colombia"]},
+     "categorias": ["general", "colombia"],
+     "tipo": "nacional"},
     {"nombre": "Google News — Economía",    "url": "https://news.google.com/rss/search?q=economia+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["economia"]},
+     "categorias": ["economia"],
+     "tipo": "nacional"},
     {"nombre": "Google News — Deportes",    "url": "https://news.google.com/rss/search?q=deportes+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["deportes"]},
+     "categorias": ["deportes"],
+     "tipo": "nacional"},
     {"nombre": "Google News — Política",    "url": "https://news.google.com/rss/search?q=politica+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["politica"]},
-    {"nombre": "Google News — Tecnología",  "url": "https://news.google.com/rss/search?q=tecnologia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["tecnologia"]},
+     "categorias": ["politica"],
+     "tipo": "nacional"},
+    {"nombre": "Google News — Tecnología",  "url": "https://news.google.com/rss/search?q=tecnologia+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["tecnologia"],
+     "tipo": "nacional"},
     {"nombre": "Google News — Salud",       "url": "https://news.google.com/rss/search?q=salud+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["salud"]},
+     "categorias": ["salud"],
+     "tipo": "nacional"},
     {"nombre": "Google News — Cultura",     "url": "https://news.google.com/rss/search?q=cultura+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["cultura"]},
+     "categorias": ["cultura"],
+     "tipo": "nacional"},
     {"nombre": "Google News — Judicial",    "url": "https://news.google.com/rss/search?q=judicial+justicia+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["judicial"]},
+     "categorias": ["judicial", "justicia"],
+     "tipo": "nacional"},
+
+    # ── GOOGLE NEWS — Nuevas categorías de Fuentes_SEO ────────────
+    {"nombre": "Google News — Motor Colombia",   "url": "https://news.google.com/rss/search?q=carros+autos+motor+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["motor"],
+     "tipo": "nacional"},
+    {"nombre": "Google News — Bogotá",           "url": "https://news.google.com/rss/search?q=bogota+noticias&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["bogota"],
+     "tipo": "nacional"},
+    {"nombre": "Google News — Vida Colombia",    "url": "https://news.google.com/rss/search?q=ciencia+medio+ambiente+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["vida"],
+     "tipo": "nacional"},
+    {"nombre": "Google News — Virales",          "url": "https://news.google.com/rss/search?q=viral+tendencia+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["virales"],
+     "tipo": "nacional"},
+]
+
+# ═══════════════════════════════════════════════════════════════
+# DOMINIOS ARGENTINOS — para filtro opcional
+# ═══════════════════════════════════════════════════════════════
+
+DOMINIOS_ARGENTINA = [
+    "clarin.com", "lanacion.com.ar", "perfil.com",
+    "lavoz.com.ar", "ole.com.ar", "mdzol.com",
+    "la100.cienradios.com", "elle.clarin.com",
 ]
 
 # ═══════════════════════════════════════════════════════════════
@@ -323,8 +534,8 @@ def _fecha_display(dt):
 
 import base64
 
-def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss=""):
-    """Retorna (bloqueado, razón)."""
+def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argentina=True):
+    """Retorna (bloqueado, razón). Incluye filtro opcional de Argentina."""
     url_lower = url.lower()
     fuente_lower = fuente_rss.lower()
     
@@ -345,6 +556,12 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss=""):
     for dominio in DOMINIOS_BLOQUEADOS:
         if dominio in url_lower:
             return True, f"Dominio: {dominio}"
+
+    # ── Filtro de Argentina (opcional) ──
+    if filtrar_argentina:
+        for dominio in DOMINIOS_ARGENTINA:
+            if dominio in url_lower:
+                return True, f"Dominio Argentina: {dominio}"
             
     texto_lower = f"{titulo} {descripcion} {fuente_rss}".lower()
     # Versión minúscula de las firmas
@@ -450,8 +667,8 @@ def _parsear_feed(xml_str, nombre_fuente):
         if not _es_fecha_confiable(fecha_dt):
             continue  # Descartado: fecha ausente o inválida
 
-        # ── Filtro bloqueados ──
-        bloqueado, _ = _esta_bloqueado(url, titulo, descripcion, fuente_rss)
+        # ── Filtro bloqueados (nota: Argentina se filtra en buscar_noticias) ──
+        bloqueado, _ = _esta_bloqueado(url, titulo, descripcion, fuente_rss, filtrar_argentina=False)
         if bloqueado:
             continue
 
@@ -474,13 +691,15 @@ def _parsear_feed(xml_str, nombre_fuente):
 
 CATEGORIAS_DISPONIBLES = [
     "general", "economia", "politica", "deportes", "tecnologia",
-    "cultura", "judicial", "internacional", "salud", "tendencias",
-    "negocios", "finanzas", "colombia",
+    "cultura", "judicial", "justicia", "internacional", "salud",
+    "tendencias", "negocios", "finanzas", "colombia",
+    "motor", "vida", "virales", "bogota",
 ]
 
 
 def buscar_noticias(categorias_seleccionadas=None, fecha_filtro=None,
-                    max_por_fuente=20, max_total=200, verbose=True):
+                    max_por_fuente=20, max_total=200, verbose=True,
+                    tipo_noticias="ambas", filtrar_argentina=True):
     """
     Busca noticias de fuentes RSS.
 
@@ -491,6 +710,8 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_filtro=None,
         max_por_fuente: máx artículos por fuente RSS.
         max_total: máx artículos en resultado final.
         verbose: imprimir progreso.
+        tipo_noticias: "nacional", "internacional" o "ambas".
+        filtrar_argentina: True para bloquear noticias de Argentina.
 
     Returns:
         dict con resultado.
@@ -503,6 +724,11 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_filtro=None,
     # Seleccionar fuentes que coincidan con al menos 1 categoría
     fuentes = []
     for f in FUENTES_RSS:
+        # Filtro por tipo nacional/internacional
+        if tipo_noticias != "ambas":
+            if f.get("tipo", "nacional") != tipo_noticias:
+                continue
+
         if cats_lower is None:
             fuentes.append(f)
         else:
@@ -515,7 +741,10 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_filtro=None,
         log.info("  BUSCADOR DE NOTICIAS — FECHAS VERIFICADAS")
         log.info("=" * 60)
         fecha_info = fecha_filtro.strftime("%Y-%m-%d") if fecha_filtro else "Todas"
+        tipo_info = {"nacional": "🇨🇴 Nacional", "internacional": "🌍 Internacional", "ambas": "🌐 Ambas"}.get(tipo_noticias, tipo_noticias)
         log.info(f"  Fuentes seleccionadas: {len(fuentes)}")
+        log.info(f"  Tipo de noticias: {tipo_info}")
+        log.info(f"  Filtro Argentina: {'Sí' if filtrar_argentina else 'No'}")
         log.info(f"  Filtro de fecha: {fecha_info}")
         log.info("=" * 60)
 
@@ -537,6 +766,15 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_filtro=None,
             continue
 
         articulos = _parsear_feed(xml_str, nombre)
+
+        # Filtrar Argentina si está activo
+        if filtrar_argentina:
+            articulos_filtrados = []
+            for art in articulos:
+                bloq, _ = _esta_bloqueado(art["url"], art["titulo"], art.get("resumen", ""), "", filtrar_argentina=True)
+                if not bloq:
+                    articulos_filtrados.append(art)
+            articulos = articulos_filtrados
 
         # Filtrar por fecha exacta si se pidió
         if fecha_filtro:
@@ -774,6 +1012,7 @@ CATEGORIAS_GUI = [
     "General", "Economía", "Política", "Deportes", "Tecnología",
     "Cultura", "Judicial", "Internacional", "Salud", "Tendencias",
     "Negocios", "Finanzas", "Colombia",
+    "Motor", "Vida", "Virales", "Bogotá",
 ]
 
 # Mapeo GUI → categorías internas (minúsculas)
@@ -784,13 +1023,17 @@ MAPA_CATEGORIAS = {
     "Deportes": ["deportes"],
     "Tecnología": ["tecnologia"],
     "Cultura": ["cultura"],
-    "Judicial": ["judicial"],
+    "Judicial": ["judicial", "justicia"],
     "Internacional": ["internacional"],
     "Salud": ["salud"],
     "Tendencias": ["tendencias"],
     "Negocios": ["negocios"],
     "Finanzas": ["finanzas"],
     "Colombia": ["colombia"],
+    "Motor": ["motor"],
+    "Vida": ["vida"],
+    "Virales": ["virales"],
+    "Bogotá": ["bogota"],
 }
 
 if GUI_AVAILABLE:
@@ -912,6 +1155,24 @@ class AppNoticiasIDEAS(ctk.CTk):
                       text="⚠ Solo artículos con fecha REAL verificada.\n   Artículos sin fecha confiable son descartados.",
                       font=ctk.CTkFont(size=10), text_color="#FFAA00").pack(padx=20, pady=(5, 10), anchor="w")
 
+        # ── Selector Nacional / Internacional / Ambas ──
+        fr_tipo = ctk.CTkFrame(panel_der, fg_color="transparent")
+        fr_tipo.pack(fill="x", padx=20, pady=(0, 5))
+        ctk.CTkLabel(fr_tipo, text="Tipo de noticias:", font=ctk.CTkFont(weight="bold")).pack(anchor="w", pady=(0, 3))
+        self.var_tipo_noticias = ctk.StringVar(value="ambas")
+        self.seg_tipo = ctk.CTkSegmentedButton(
+            fr_tipo, values=["🇨🇴 Nacional", "🌍 Internacional", "🌐 Ambas"],
+            variable=self.var_tipo_noticias,
+            command=self._on_tipo_change)
+        self.seg_tipo.set("🌐 Ambas")
+        self.seg_tipo.pack(fill="x", pady=(0, 5))
+
+        # ── Filtro Argentina ──
+        self.var_filtrar_argentina = ctk.BooleanVar(value=True)
+        ctk.CTkSwitch(fr_tipo, text="Filtrar noticias de Argentina",
+                      variable=self.var_filtrar_argentina,
+                      font=ctk.CTkFont(size=11)).pack(anchor="w", pady=(3, 0))
+
         # Botón principal
         self.btn_ejecutar = ctk.CTkButton(
             panel_der, text="▶ INICIAR BÚSQUEDA Y GENERAR EXCEL",
@@ -923,6 +1184,11 @@ class AppNoticiasIDEAS(ctk.CTk):
         ctk.CTkLabel(main_frame, text="3. Registro del Proceso (Logs en vivo)", font=ctk.CTkFont(weight="bold")).pack(anchor="w")
         self.consola = ctk.CTkTextbox(main_frame, font=ctk.CTkFont(family="Consolas", size=11), wrap="word")
         self.consola.pack(fill="both", expand=True, pady=(5, 0))
+
+    def _on_tipo_change(self, valor):
+        """Mapea el texto del botón segmentado al valor interno."""
+        mapa = {"🇨🇴 Nacional": "nacional", "🌍 Internacional": "internacional", "🌐 Ambas": "ambas"}
+        self.var_tipo_noticias.set(mapa.get(valor, "ambas"))
 
     def _marcar(self, estado):
         for v in self.vars_categorias.values():
@@ -953,10 +1219,12 @@ class AppNoticiasIDEAS(ctk.CTk):
         self.consola.delete("0.0", "end")
         self.mostrar_bienvenida()
 
-        hilo = threading.Thread(target=self._proceso, args=(seleccionadas, fecha_obj), daemon=True)
+        tipo = self.var_tipo_noticias.get()
+        filtrar_arg = self.var_filtrar_argentina.get()
+        hilo = threading.Thread(target=self._proceso, args=(seleccionadas, fecha_obj, tipo, filtrar_arg), daemon=True)
         hilo.start()
 
-    def _proceso(self, seleccionadas, fecha_filtro):
+    def _proceso(self, seleccionadas, fecha_filtro, tipo_noticias="ambas", filtrar_argentina=True):
         try:
             # Mapear categorías GUI → internas
             cats_internas = set()
@@ -966,11 +1234,14 @@ class AppNoticiasIDEAS(ctk.CTk):
 
             nombre_archivo = _siguiente_nombre_tabla()
 
+            tipo_display = {"nacional": "🇨🇴 Nacional", "internacional": "🌍 Internacional", "ambas": "🌐 Ambas"}.get(tipo_noticias, tipo_noticias)
             fecha_info = fecha_filtro.strftime("%Y-%m-%d") if fecha_filtro else "Todas (más recientes)"
             print()
             print("  ═" * 30)
             print(f"  Categorías seleccionadas: {len(seleccionadas)}")
             print(f"  Categorías internas: {', '.join(sorted(cats_internas))}")
+            print(f"  Tipo de noticias: {tipo_display}")
+            print(f"  Filtro Argentina: {'Sí' if filtrar_argentina else 'No'}")
             print(f"  Filtro de fecha: {fecha_info}")
             print(f"  Archivo de salida: {nombre_archivo}")
             print("  ═" * 30)
@@ -980,6 +1251,8 @@ class AppNoticiasIDEAS(ctk.CTk):
                 categorias_seleccionadas=list(cats_internas),
                 fecha_filtro=fecha_filtro,
                 verbose=True,
+                tipo_noticias=tipo_noticias,
+                filtrar_argentina=filtrar_argentina,
             )
 
             noticias = resultado["noticias"]
