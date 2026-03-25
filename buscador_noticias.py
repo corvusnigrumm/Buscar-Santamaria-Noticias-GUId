@@ -1159,10 +1159,9 @@ class AppNoticiasIDEAS(ctk.CTk):
         fr_tipo = ctk.CTkFrame(panel_der, fg_color="transparent")
         fr_tipo.pack(fill="x", padx=20, pady=(0, 5))
         ctk.CTkLabel(fr_tipo, text="Tipo de noticias:", font=ctk.CTkFont(weight="bold")).pack(anchor="w", pady=(0, 3))
-        self.var_tipo_noticias = ctk.StringVar(value="ambas")
+        self._tipo_noticias = "ambas"
         self.seg_tipo = ctk.CTkSegmentedButton(
             fr_tipo, values=["Nacional", "Internacional", "Ambas"],
-            variable=self.var_tipo_noticias,
             command=self._on_tipo_change)
         self.seg_tipo.set("Ambas")
         self.seg_tipo.pack(fill="x", pady=(0, 5))
@@ -1186,9 +1185,9 @@ class AppNoticiasIDEAS(ctk.CTk):
         self.consola.pack(fill="both", expand=True, pady=(5, 0))
 
     def _on_tipo_change(self, valor):
-        """Mapea el texto del boton segmentado al valor interno."""
+        """Almacena la seleccion del boton segmentado."""
         mapa = {"Nacional": "nacional", "Internacional": "internacional", "Ambas": "ambas"}
-        self.var_tipo_noticias.set(mapa.get(valor, "ambas"))
+        self._tipo_noticias = mapa.get(valor, "ambas")
 
     def _marcar(self, estado):
         for v in self.vars_categorias.values():
@@ -1219,7 +1218,7 @@ class AppNoticiasIDEAS(ctk.CTk):
         self.consola.delete("0.0", "end")
         self.mostrar_bienvenida()
 
-        tipo = self.var_tipo_noticias.get()
+        tipo = self._tipo_noticias
         filtrar_arg = self.var_filtrar_argentina.get()
         hilo = threading.Thread(target=self._proceso, args=(seleccionadas, fecha_obj, tipo, filtrar_arg), daemon=True)
         hilo.start()
