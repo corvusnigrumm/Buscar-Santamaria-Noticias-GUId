@@ -1161,10 +1161,10 @@ class AppNoticiasIDEAS(ctk.CTk):
         ctk.CTkLabel(fr_tipo, text="Tipo de noticias:", font=ctk.CTkFont(weight="bold")).pack(anchor="w", pady=(0, 3))
         self.var_tipo_noticias = ctk.StringVar(value="ambas")
         self.seg_tipo = ctk.CTkSegmentedButton(
-            fr_tipo, values=["🇨🇴 Nacional", "🌍 Internacional", "🌐 Ambas"],
+            fr_tipo, values=["Nacional", "Internacional", "Ambas"],
             variable=self.var_tipo_noticias,
             command=self._on_tipo_change)
-        self.seg_tipo.set("🌐 Ambas")
+        self.seg_tipo.set("Ambas")
         self.seg_tipo.pack(fill="x", pady=(0, 5))
 
         # ── Filtro Argentina ──
@@ -1186,8 +1186,8 @@ class AppNoticiasIDEAS(ctk.CTk):
         self.consola.pack(fill="both", expand=True, pady=(5, 0))
 
     def _on_tipo_change(self, valor):
-        """Mapea el texto del botón segmentado al valor interno."""
-        mapa = {"🇨🇴 Nacional": "nacional", "🌍 Internacional": "internacional", "🌐 Ambas": "ambas"}
+        """Mapea el texto del boton segmentado al valor interno."""
+        mapa = {"Nacional": "nacional", "Internacional": "internacional", "Ambas": "ambas"}
         self.var_tipo_noticias.set(mapa.get(valor, "ambas"))
 
     def _marcar(self, estado):
