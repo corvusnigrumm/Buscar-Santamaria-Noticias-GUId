@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LUMINA LEDGER | Professional News Search</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#782e38",
+              "surface-bright": "#f8f9fa",
+              "surface": "#f8f9fa",
+              "tertiary-fixed": "#ffdadb",
+              "surface-container-highest": "#e1e3e4",
+              "error": "#ba1a1a",
+              "inverse-primary": "#88d8a1",
+              "on-secondary-container": "#4c6954",
+              "primary-fixed-dim": "#88d8a1",
+              "on-primary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed": "#caebd0",
+              "surface-dim": "#d9dadb",
+              "outline": "#6f7a70",
+              "on-primary-container": "#a4f5bd",
+              "secondary": "#486550",
+              "primary-fixed": "#a3f4bc",
+              "on-primary-fixed-variant": "#00522d",
+              "surface-container": "#edeeef",
+              "on-error-container": "#93000a",
+              "tertiary-fixed-dim": "#ffb2b8",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed-variant": "#304d39",
+              "primary-container": "#217346",
+              "outline-variant": "#bfc9be",
+              "tertiary": "#80343e",
+              "on-background": "#191c1d",
+              "tertiary-container": "#9e4b55",
+              "on-tertiary": "#ffffff",
+              "primary": "#005931",
+              "surface-tint": "#176c40",
+              "surface-container-low": "#f3f4p5",
+              "on-surface-variant": "#3f4941",
+              "secondary-fixed-dim": "#aeceb4",
+              "secondary-container": "#c7e8cd",
+              "inverse-surface": "#2e3132",
+              "inverse-on-surface": "#f0f1f2",
+              "on-tertiary-container": "#ffdadc",
+              "on-secondary": "#ffffff",
+              "surface-container-high": "#e7e8e9",
+              "surface-variant": "#e1e3e4",
+              "on-surface": "#191c1d",
+              "on-tertiary-fixed": "#3f0210",
+              "on-secondary-fixed": "#042110",
+              "background": "#f8f9fa",
+              "on-error": "#ffffff",
+              "on-primary-fixed": "#00210f"
+            },
+            fontFamily: {
+              "headline": ["Manrope", "sans-serif"],
+              "body": ["Manrope", "sans-serif"],
+              "label": ["Manrope", "sans-serif"],
+              "mono": ["monospace"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .excel-gradient {
+            background: linear-gradient(135deg, #005931 0%, #217346 100%);
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-lowest font-body text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 h-16 bg-white dark:bg-slate-950 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#217346]" data-icon="analytics">analytics</span>
+<h1 class="font-manrope font-bold tracking-tight text-[#191c1d] dark:text-slate-100 text-xl">LUMINA LEDGER</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-[#217346] dark:text-[#217346] font-bold text-sm tracking-wide transition-colors" href="#">Dispatch</a>
+<a class="text-[#3f4941] dark:text-slate-400 font-medium text-sm tracking-wide hover:bg-[#f3f4f5] dark:hover:bg-slate-800 px-3 py-2 rounded-lg transition-colors" href="#">Intelligence</a>
+<a class="text-[#3f4941] dark:text-slate-400 font-medium text-sm tracking-wide hover:bg-[#f3f4f5] dark:hover:bg-slate-800 px-3 py-2 rounded-lg transition-colors" href="#">Logs</a>
+<a class="text-[#3f4941] dark:text-slate-400 font-medium text-sm tracking-wide hover:bg-[#f3f4f5] dark:hover:bg-slate-800 px-3 py-2 rounded-lg transition-colors" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-xs">
+                JD
+            </div>
+</div>
+</header>
+<!-- Content Canvas -->
+<main class="pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto">
+<div class="mb-12">
+<h2 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Despacho de Inteligencia</h2>
+<p class="text-on-surface-variant text-lg max-w-2xl">Configure los parámetros de búsqueda para la extracción y análisis de datos de prensa global y local.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Input Section: Left Column -->
+<div class="lg:col-span-7 space-y-8">
+<!-- Section: Categories (Chips) -->
+<section class="bg-surface-container-lowest p-1 rounded-xl">
+<label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-on-surface-variant mb-4 px-2">Categorías de búsqueda<!--"label-->
+<div class="flex flex-wrap gap-2">
+<button class="px-5 py-2.5 rounded-full border border-primary text-primary font-semibold text-sm bg-primary/5 transition-all">Economía</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-medium text-sm hover:bg-surface-container-high transition-all">Política</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-medium text-sm hover:bg-surface-container-high transition-all">Tecnología</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-medium text-sm hover:bg-surface-container-high transition-all">Agronegocios</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-medium text-sm hover:bg-surface-container-high transition-all">Mercados</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-medium text-sm hover:bg-surface-container-high transition-all">Infraestructura</button>
+</div>
+</label></section>
+<!-- Section: Date Range -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-surface-container-low p-6 rounded-2xl border border-surface-container">
+<div>
+<label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-on-surface-variant mb-2">Desde</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-3 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all" type="date" value="2023-10-01"/>
+</div>
+</div>
+<div>
+<label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-on-surface-variant mb-2">Hasta</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-3 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all" type="date" value="2023-10-27"/>
+</div>
+</div>
+</section>
+<!-- Section: Scope & Segmentation -->
+<section class="space-y-6">
+<div class="flex items-center justify-between bg-surface-container p-5 rounded-2xl border border-surface-container-high">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="public">public</span>
+<span class="font-bold text-on-surface">Noticias de Argentina</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-dim peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="bg-surface-container-low p-2 rounded-xl flex items-center border border-surface-container">
+<button class="flex-1 py-3 text-sm font-bold tracking-wide rounded-lg bg-white shadow-sm text-primary">Nacional</button>
+<button class="flex-1 py-3 text-sm font-medium tracking-wide text-on-surface-variant hover:bg-surface-container transition-all">Internacional</button>
+<button class="flex-1 py-3 text-sm font-medium tracking-wide text-on-surface-variant hover:bg-surface-container transition-all">Ambas</button>
+</div>
+</section>
+<!-- Main Action Button -->
+<button class="w-full py-6 rounded-2xl excel-gradient text-white flex items-center justify-center gap-4 group shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-2xl" data-icon="table_view">table_view</span>
+<span class="font-bold text-lg tracking-tight">INICIAR BÚSQUEDA Y GENERAR EXCEL</span>
+</button>
+</div>
+<!-- Dashboard/Logs: Right Column -->
+<div class="lg:col-span-5 space-y-6">
+<!-- Live Preview / Status Card -->
+<div class="bg-white rounded-2xl border border-surface-container p-6 shadow-sm overflow-hidden relative group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="cloud_sync">cloud_sync</span>
+</div>
+<div class="relative z-10">
+<h3 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest mb-4">Estado del Sistema</h3>
+<div class="flex items-end gap-2 mb-1">
+<span class="text-5xl font-black text-primary tracking-tighter">94.2%</span>
+<span class="text-on-surface-variant font-medium mb-1">Precisión de IA</span>
+</div>
+<div class="flex gap-4 mt-6">
+<div class="flex-1 bg-surface-container-low p-3 rounded-xl">
+<span class="block text-[10px] font-bold text-on-surface-variant uppercase">Fuentes Activas</span>
+<span class="text-xl font-bold text-on-surface">1,208</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-3 rounded-xl">
+<span class="block text-[10px] font-bold text-on-surface-variant uppercase">Tiempo de Proc.</span>
+<span class="text-xl font-bold text-on-surface">12ms</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Logs Section -->
+<div class="bg-surface-dim rounded-2xl p-1 flex flex-col h-[400px]">
+<div class="bg-white flex items-center justify-between px-4 py-3 rounded-t-xl border-b border-surface-container">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="font-mono text-xs font-bold text-on-surface">TERMINAL DE PROCESO</span>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="terminal">terminal</span>
+</div>
+<div class="flex-1 bg-white p-4 font-mono text-[12px] leading-relaxed overflow-y-auto hide-scrollbar text-on-surface-variant">
+<div class="mb-2"><span class="text-primary font-bold">[READY]</span> System kernel initialized. Core v2.4.0</div>
+<div class="mb-2"><span class="text-primary font-bold">[SYNC]</span> Connected to Reuters API ... OK</div>
+<div class="mb-2"><span class="text-primary font-bold">[SYNC]</span> Connected to Bloomberg Terminals ... OK</div>
+<div class="mb-2"><span class="text-primary font-bold">[SYNC]</span> Local node 'Argentina-Sur' active.</div>
+<div class="mb-2 opacity-50">--------------------------------------------------</div>
+<div class="mb-2"><span class="text-secondary font-bold">[IDLE]</span> Awaiting search dispatch...</div>
+<div class="mb-2"><span class="text-secondary font-bold">[IDLE]</span> Parameters: scope=national, date_range=current</div>
+<div class="mb-2 opacity-50">&gt; heartbeat signal sent (3000ms interval)</div>
+<div class="mb-2 opacity-50">&gt; buffer allocated: 512MB</div>
+<div class="mb-2"><span class="text-primary font-bold">[LOG]</span> User logged in: JD_Admin_01</div>
+<div class="mb-2"><span class="text-primary font-bold">[LOG]</span> Configuration loaded from 'ledger_standard_v2'</div>
+<div class="mb-2 opacity-50">&gt; listening on port 8080...</div>
+</div>
+<div class="bg-surface-container-low px-4 py-2 rounded-b-xl border-t border-surface-container">
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-on-surface-variant">AUTO-SAVE: ON</span>
+<div class="flex-1 h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="w-1/3 h-full bg-primary"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Featured Analysis Card (Bento Style) -->
+<section class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-white p-8 rounded-2xl border border-surface-container flex flex-col md:flex-row gap-8 items-center">
+<div class="flex-1">
+<span class="inline-block px-3 py-1 rounded-full bg-primary-container/10 text-primary text-[10px] font-bold tracking-widest uppercase mb-4">Insight Semanal</span>
+<h4 class="text-2xl font-extrabold text-on-surface leading-tight mb-4">El impacto de la digitalización en la prensa económica local.</h4>
+<p class="text-on-surface-variant mb-6 leading-relaxed">Analice las tendencias de 2023 con nuestro nuevo motor de procesamiento de lenguaje natural optimizado para jerga financiera.</p>
+<button class="flex items-center gap-2 text-primary font-bold hover:underline">
+                        Ver informe detallado
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="w-full md:w-64 h-48 rounded-xl overflow-hidden shadow-inner bg-surface-container">
+<img alt="Dashboard analytics visualization" class="w-full h-full object-cover mix-blend-multiply opacity-80" data-alt="Modern minimalist data analytics dashboard with green line charts and clean white background aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTo-CxQjKDu4JidPIjOm7BgPmx2Oso-S3UUQ2zaao8TIgeOkPCnimwfXnFFU1bz4K3eyQJb_d_Qoyrh-h7JYE-Myn58dMQy2uVPAN4rElF5K19X1DV_rYn4Aws_8RyKh_igE4lymryJ0OAWf0K_qNBDWOIdt_CoUlebLsOJCsGa29bM3G-ev1mQx78m011wa9YMo9U1SJ2n8IXy0qDOyj2pReq2WAEu25L0i_KWtFjEOZ3ODcXg9jcPQLsiH9n-GWOPV_ET_qIgmI9"/>
+</div>
+</div>
+<div class="bg-primary-container p-8 rounded-2xl text-white flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-4xl mb-6" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h4 class="text-xl font-bold mb-2">Generación Automática</h4>
+<p class="text-primary-container/20 text-on-primary-container text-sm leading-relaxed">Nuestros algoritmos clasifican automáticamente por sentimiento y relevancia corporativa.</p>
+</div>
+<div class="mt-8 border-t border-white/10 pt-6">
+<div class="flex justify-between items-center text-xs font-bold uppercase tracking-widest opacity-80">
+<span>Tokens Disponibles</span>
+<span>4.2k / 5k</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Mobile Bottom Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-[#edeeef] dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-[#217346] dark:text-[#217346] bg-[#217346]/10 rounded-xl px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+<span class="font-manrope text-[11px] font-bold uppercase tracking-widest mt-1">Dispatch</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3f4941] dark:text-slate-400 px-4 py-1 hover:text-[#217346] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="font-manrope text-[11px] font-bold uppercase tracking-widest mt-1">Intelligence</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3f4941] dark:text-slate-400 px-4 py-1 hover:text-[#217346] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="font-manrope text-[11px] font-bold uppercase tracking-widest mt-1">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3f4941] dark:text-slate-400 px-4 py-1 hover:text-[#217346] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-manrope text-[11px] font-bold uppercase tracking-widest mt-1">Settings</span>
+</a>
+</nav>
+<!-- Contextual FAB (Only on main screen) -->
+<button class="fixed bottom-24 right-6 md:bottom-8 md:right-8 w-14 h-14 rounded-full excel-gradient text-white shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40">
+<span class="material-symbols-outlined text-2xl" data-icon="add" style="font-variation-settings: 'wght' 600;">add</span>
+</button>
+</body></html>

@@ -7,7 +7,7 @@ import sys
 
 # Configuramos la página de Streamlit
 st.set_page_config(
-    page_title="Buscador IDEAS",
+    page_title="Buscador Santamaria Inteligente",
     page_icon="📰",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -25,7 +25,7 @@ except ImportError:
 
 # ── INTERFAZ STREAMLIT ──────────────────────────────────────────
 
-st.title("Buscador de Noticias en Tiempo Real — IDEAS")
+st.title("Buscador Santamaria de Noticias Inteligente - V 5.0")
 st.markdown("""
 <div style='background-color: #f0f2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;'>
     <b>✓ Fechas 100% reales</b> (Nunca <code>datetime.now()</code> como fallback)<br>
@@ -81,11 +81,19 @@ with st.sidebar:
     st.header("3. Filtros Adicionales")
     
     # Checkbox para usar fecha o no
-    usar_fecha = st.checkbox("Filtrar por fecha exacta", value=True)
+    usar_fecha = st.checkbox("Filtrar por rango de fechas", value=True)
     if usar_fecha:
-        fecha_filtro = st.date_input("Selecciona la fecha", datetime.date.today())
+        fecha_valores = st.date_input("Selecciona el rango de fechas (Inicio - Fin)", 
+                                      value=(datetime.date.today(), datetime.date.today()))
+        if isinstance(fecha_valores, tuple) and len(fecha_valores) == 2:
+            fecha_inicio, fecha_fin = fecha_valores
+        elif isinstance(fecha_valores, tuple) and len(fecha_valores) == 1:
+            fecha_inicio = fecha_fin = fecha_valores[0]
+        else:
+            fecha_inicio = fecha_fin = fecha_valores
     else:
-        fecha_filtro = None
+        fecha_inicio = None
+        fecha_fin = None
         st.info("Buscando todas las noticias más recientes sin importar la fecha exacta.")
 
 
@@ -112,7 +120,8 @@ if st.button("▶ INICIAR BÚSQUEDA Y GENERAR EXCEL", type="primary", use_contai
                 t0 = time.time()
                 resultado = buscar_noticias(
                     categorias_seleccionadas=cats_internas_list,
-                    fecha_filtro=fecha_filtro,
+                    fecha_inicio=fecha_inicio,
+                    fecha_fin=fecha_fin,
                     verbose=False,
                     tipo_noticias=tipo_noticias,
                     filtrar_argentina=filtrar_argentina,
@@ -138,7 +147,7 @@ if 'resultado_busqueda' in st.session_state:
         
         # Generar Excel en Memoria
         generador = GeneradorExcelIDEAS(noticias)
-        excel_name = f"Noticias_IDEAS_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        excel_name = f"Noticias_Santamaria_Inteligente_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         
         output = io.BytesIO()
         generador.generar(output)
