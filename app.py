@@ -41,6 +41,12 @@ html, body, .stApp, .stApp * {
 /* ── Ocultar menú y footer de Streamlit ───────────────── */
 footer { visibility: hidden; }
 #MainMenu { visibility: hidden; }
+header { visibility: hidden; }
+
+/* Ocultar el botón de colapso que muestra el texto bugueado 'keyboard_double' */
+button[data-testid="collapsedControl"] {
+    display: none;
+}
 
 /* ── Banner con gradiente verde ───────────────────────── */
 .banner {
