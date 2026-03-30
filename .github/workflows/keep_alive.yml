@@ -1,0 +1,25 @@
+name: Keep Alive — Streamlit Cloud
+
+on:
+  schedule:
+    # Cada 10 horas: 00:00, 10:00, 20:00 UTC
+    - cron: '0 0,10,20 * * *'
+  workflow_dispatch:  # Permitir ejecución manual desde GitHub
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit vacío para resetear inactividad
+        run: |
+          git commit --allow-empty -m "chore: keep-alive ping $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
