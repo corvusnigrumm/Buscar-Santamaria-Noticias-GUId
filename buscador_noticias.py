@@ -569,10 +569,13 @@ DOMINIOS_ARGENTINA = [
 
 import pandas as pd
 
+_DIR_ACTUAL = os.path.dirname(os.path.abspath(__file__))
+_EXCEL_FUENTES_PATH = os.path.join(_DIR_ACTUAL, 'Fuentes_SEO.xlsx')
+
 DOMINIOS_PERMITIDOS = set()
 try:
     _dfs = pd.read_excel(
-        r'l:\DESCARGAS\PROYECTOS\Proyecto Búsqueda Noticias\Fuentes_SEO.xlsx',
+        _EXCEL_FUENTES_PATH,
         sheet_name=None, header=None
     )
     for sheet, _df in _dfs.items():

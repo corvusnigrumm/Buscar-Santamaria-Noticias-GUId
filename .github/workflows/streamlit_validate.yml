@@ -1,0 +1,47 @@
+name: Streamlit Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Verify imports
+      run: |
+        python -c "
+        import streamlit
+        import openpyxl
+        import pandas
+        print('✅ All core dependencies imported successfully')
+        "
+
+    - name: Smoke test — app module loads
+      run: |
+        python -c "
+        # Verify buscador_noticias loads without GUI
+        import buscador_noticias
+        print(f'✅ buscador_noticias loaded — {len(buscador_noticias.FUENTES_RSS)} RSS feeds configured')
+        print(f'✅ {len(buscador_noticias.CATEGORIAS_GUI)} GUI categories available')
+        print(f'✅ DOMINIOS_PERMITIDOS: {len(buscador_noticias.DOMINIOS_PERMITIDOS)} domains')
+        "
+
+    - name: Verify Streamlit config
+      run: |
+        test -f .streamlit/config.toml && echo "✅ Streamlit config exists" || echo "❌ Missing .streamlit/config.toml"
+        test -f Fuentes_SEO.xlsx && echo "✅ Fuentes_SEO.xlsx exists" || echo "❌ Missing Fuentes_SEO.xlsx"

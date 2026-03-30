@@ -8,8 +8,18 @@ __pycache__/
 
 # Excel output
 TABLA DE NOTICIAS *.xlsx
+Noticias_Santamaria_*.xlsx
 
 # IDE
 .vscode/
 .idea/
 *.swp
+
+# Parches y tests temporales
+parche*.py
+diff*.txt
+test_*.py
+releases/
+
+# Filtro legacy
+filtro_fuentes_bloqueadas.py
