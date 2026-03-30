@@ -41,7 +41,6 @@ html, body, .stApp, .stApp * {
 /* ── Ocultar menú y footer de Streamlit ───────────────── */
 footer { visibility: hidden; }
 #MainMenu { visibility: hidden; }
-header { visibility: hidden; }
 
 /* Fix: ocultar el TEXTO bugueado 'keyboard_double' pero mantener el botón funcional */
 button[data-testid="collapsedControl"] {
