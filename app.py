@@ -43,9 +43,23 @@ footer { visibility: hidden; }
 #MainMenu { visibility: hidden; }
 header { visibility: hidden; }
 
-/* Ocultar el botón de colapso que muestra el texto bugueado 'keyboard_double' */
+/* Fix: ocultar el TEXTO bugueado 'keyboard_double' pero mantener el botón funcional */
 button[data-testid="collapsedControl"] {
-    display: none;
+    font-size: 0 !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 50% !important;
+    background: #217346 !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,89,49,0.25) !important;
+}
+button[data-testid="collapsedControl"]::after {
+    content: '☰';
+    font-size: 16px;
+    color: #ffffff;
+}
+button[data-testid="collapsedControl"] svg {
+    display: none !important;
 }
 
 /* ── Banner con gradiente verde ───────────────────────── */
