@@ -32,29 +32,29 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0');
 
-/* ── Fuente global (sin romper íconos de Streamlit) ──── */
-html, body, .stApp {
-    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+/* ── Fuente global ────────────────────────────────────── */
+html, body, [class*="css"] {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
-/* Aplicar Manrope a elementos de texto, NO a íconos */
-.stApp p, .stApp span, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
-.stApp label, .stApp div, .stApp input, .stApp textarea, .stApp select,
-.stApp td, .stApp th, .stApp li, .stApp a,
-.stMarkdown, .stText, [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
-    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+
+/* ── Proteger Íconos de Streamlit (Material Symbols) ──── */
+
+span[class*="material-symbols"],
+i[class*="material-icons"],
+span[data-testid="stIconMaterial"],
+.stIcon,
+button[data-testid="collapsedControl"],
+button[data-testid="collapsedControl"] *,
+button[kind="header"],
+button[kind="header"] * {
+    font-family: "Material Symbols Rounded", "Material Icons", sans-serif !important;
 }
 
 /* ── Ocultar menú y footer de Streamlit ───────────────── */
 footer { visibility: hidden; }
 #MainMenu { visibility: hidden; }
-
-/* ── Fix sidebar toggle: ocultar texto de ícono bugueado ─ */
-button[data-testid="collapsedControl"] span,
-section[data-testid="stSidebar"] button[kind="header"] span {
-    font-size: 0 !important;
-    overflow: hidden !important;
-}
 
 /* ── Banner con gradiente verde ───────────────────────── */
 .banner {
