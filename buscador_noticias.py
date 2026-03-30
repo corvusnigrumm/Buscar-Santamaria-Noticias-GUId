@@ -159,7 +159,7 @@ FUENTES_RSS = [
      "categorias": ["politica"], "tipo": "nacional"},
 
     {"nombre": "El Espectador",
-     "url": "https://www.elespectador.com/arc/outboundfeeds/rss/",
+     "url": "https://www.elespectador.com/arc/outboundfeeds/discover/?outputType=xml",
      "categorias": ["general", "politica", "judicial", "justicia", "cultura", "colombia"],
      "tipo": "nacional"},
     {"nombre": "El Espectador — Economía",
@@ -172,7 +172,7 @@ FUENTES_RSS = [
      "tipo": "nacional"},
 
     {"nombre": "Semana",
-     "url": "https://www.semana.com/rss/",
+     "url": "https://www.semana.com/arc/outboundfeeds/rss/?outputType=xml",
      "categorias": ["general", "politica", "economia", "cultura", "deportes", "tecnologia", "salud", "internacional", "judicial", "justicia", "vida", "virales"],
      "tipo": "nacional"},
 
@@ -182,25 +182,25 @@ FUENTES_RSS = [
      "tipo": "nacional"},
 
     {"nombre": "Caracol Radio",
-     "url": "https://caracol.com.co/rss/",
+     "url": "https://caracol.com.co/arc/outboundfeeds/google-news-feed/?outputType=xml",
      "categorias": ["general", "politica", "deportes", "economia", "judicial", "justicia"],
      "tipo": "nacional"},
 
     {"nombre": "W Radio",
-     "url": "https://www.wradio.com.co/rss/",
+     "url": "https://news.google.com/rss/search?q=site:wradio.com.co&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["general", "politica", "deportes", "economia"],
      "tipo": "nacional"},
 
     {"nombre": "Pulzo",
-     "url": "https://www.pulzo.com/feed",
+     "url": "https://news.google.com/rss/search?q=site:pulzo.com&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["general", "colombia", "virales"], "tipo": "nacional"},
 
     {"nombre": "El Universal Cartagena",
-     "url": "https://www.eluniversal.com.co/rss.xml",
+     "url": "https://news.google.com/rss/search?q=site:eluniversal.com.co&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["general", "colombia"], "tipo": "nacional"},
 
     {"nombre": "Vanguardia",
-     "url": "https://www.vanguardia.com/rss/",
+     "url": "https://news.google.com/rss/search?q=site:vanguardia.com&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["general", "colombia"], "tipo": "nacional"},
 
     {"nombre": "Kienyke",
@@ -220,23 +220,23 @@ FUENTES_RSS = [
      "categorias": ["economia", "negocios"], "tipo": "nacional"},
 
     {"nombre": "Fútbol Red",
-     "url": "https://www.futbolred.com/rss/",
+     "url": "https://news.google.com/rss/search?q=site:futbolred.com&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["deportes"], "tipo": "nacional"},
 
     {"nombre": "Conexión Capital",
-     "url": "https://conexioncapital.co/feed/",
+     "url": "https://news.google.com/rss/search?q=site:canalcapital.gov.co&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["bogota", "general", "colombia"], "tipo": "nacional"},
 
     {"nombre": "El Carro Colombiano",
-     "url": "https://www.elcarrocolombiano.com/feed/",
+     "url": "https://news.google.com/rss/search?q=site:elcarrocolombiano.com&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["motor"], "tipo": "nacional"},
 
     {"nombre": "Blu Radio",
-     "url": "https://www.bluradio.com/rss/",
+     "url": "https://news.google.com/rss/search?q=site:bluradio.com&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["general", "colombia", "tecnologia"], "tipo": "nacional"},
 
     {"nombre": "Radionica",
-     "url": "https://www.radionica.rocks/feed",
+     "url": "https://news.google.com/rss/search?q=site:radionica.rocks&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["cultura", "vida"], "tipo": "nacional"},
 
     {"nombre": "Minuto 30",
@@ -268,12 +268,12 @@ FUENTES_RSS = [
 
     # NEW: Agro Negocios
     {"nombre": "Agro Negocios",
-     "url": "https://www.agronegocios.co/feed/",
+     "url": "https://news.google.com/rss/search?q=site:agronegocios.co&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["economia", "negocios"], "tipo": "nacional"},
 
     # NEW: Mi Bolsillo
     {"nombre": "Mi Bolsillo",
-     "url": "https://www.mibolsillo.com/feed/",
+     "url": "https://news.google.com/rss/search?q=site:mibolsillo.co+finanzas&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["mis finanzas", "economia"], "tipo": "nacional"},
 
     # NEW: Expertos del Ahorro
@@ -293,7 +293,7 @@ FUENTES_RSS = [
 
     # NEW: Ahorro Capital
     {"nombre": "Ahorro Capital",
-     "url": "https://www.ahorrocapital.com/feed/",
+     "url": "https://news.google.com/rss/search?q=site:ahorrocapital.com+finanzas&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["mis finanzas", "economia"], "tipo": "nacional"},
 
     # NEW: CESLA (vía GNews — sin RSS propio)
