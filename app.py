@@ -33,8 +33,15 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* ── Fuente global ────────────────────────────────────── */
-html, body, .stApp, .stApp * {
+/* ── Fuente global (sin romper íconos de Streamlit) ──── */
+html, body, .stApp {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+/* Aplicar Manrope a elementos de texto, NO a íconos */
+.stApp p, .stApp span, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
+.stApp label, .stApp div, .stApp input, .stApp textarea, .stApp select,
+.stApp td, .stApp th, .stApp li, .stApp a,
+.stMarkdown, .stText, [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -42,23 +49,11 @@ html, body, .stApp, .stApp * {
 footer { visibility: hidden; }
 #MainMenu { visibility: hidden; }
 
-/* Fix: ocultar el TEXTO bugueado 'keyboard_double' pero mantener el botón funcional */
-button[data-testid="collapsedControl"] {
+/* ── Fix sidebar toggle: ocultar texto de ícono bugueado ─ */
+button[data-testid="collapsedControl"] span,
+section[data-testid="stSidebar"] button[kind="header"] span {
     font-size: 0 !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-    border-radius: 50% !important;
-    background: #217346 !important;
-    border: none !important;
-    box-shadow: 0 2px 8px rgba(0,89,49,0.25) !important;
-}
-button[data-testid="collapsedControl"]::after {
-    content: '☰';
-    font-size: 16px;
-    color: #ffffff;
-}
-button[data-testid="collapsedControl"] svg {
-    display: none !important;
+    overflow: hidden !important;
 }
 
 /* ── Banner con gradiente verde ───────────────────────── */
