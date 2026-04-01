@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 ╔══════════════════════════════════════════════════════════════════════╗
-║   BUSCADOR SANTAMARIA DE NOTICIAS INTELIGENTE — V5 (PARCHE)         ║
+║   BUSCADOR DE NOTICIAS CAPA BRINDADA — V.6                         ║
 ║   BUGS CORREGIDOS:                                                   ║
 ║   BUG 1: Whitelist bloqueaba TODAS las URLs de Google News           ║
 ║          (news.google.com no estaba en DOMINIOS_PERMITIDOS)          ║
@@ -19,12 +19,16 @@
 
 import io
 import html
+import json
 import os
 import re
+import subprocess
 import sys
 import time
 import logging
 import threading
+import unicodedata
+import hashlib
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -63,6 +67,14 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 # ═══════════════════════════════════════════════════════════════
 
 ZONA_COLOMBIA = timezone(timedelta(hours=-5))
+BASE_APP_DIR = os.path.dirname(os.path.abspath(sys.executable if getattr(sys, "frozen", False) else __file__))
+HISTORIAL_ARTICULOS_PATH = os.path.join(BASE_APP_DIR, "historial_articulos.json")
+OLLAMA_SIMILITUD_CACHE_PATH = os.path.join(BASE_APP_DIR, "ollama_similitud_cache.json")
+MAX_HISTORIAL_ARTICULOS = 4000
+VENTANA_LISTA_NEGRA_DIAS = 7
+MAX_VALIDACIONES_OLLAMA_POR_BUSQUEDA = 4
+OLLAMA_TIMEOUT_SEGUNDOS = 12
+CONTENIDO_PROFUNDO_MAX_CHARS = 1400
 
 class _DummyStream:
     def write(self, *a, **k): pass
@@ -471,6 +483,15 @@ FUENTES_RSS = [
     {"nombre": "Google News — Virales",
      "url": "https://news.google.com/rss/search?q=viral+tendencia+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["virales"], "tipo": "nacional"},
+    {"nombre": "Google News - Tendencias Colombia",
+     "url": "https://news.google.com/rss/search?q=tendencias+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["tendencias"], "tipo": "nacional"},
+    {"nombre": "Google News - Tendencias Lifestyle",
+     "url": "https://news.google.com/rss/search?q=tendencia+redes+sociales+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["tendencias"], "tipo": "nacional"},
+    {"nombre": "Google News - Tendencias Globales",
+     "url": "https://news.google.com/rss/search?q=viral+tendencia+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["tendencias"], "tipo": "internacional"},
     {"nombre": "Google News — Mis Finanzas (Servicios)",
      "url": "https://news.google.com/rss/search?q=servicio+de+la+gente+OR+como+pagar+OR+plazo+para+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["mis finanzas"], "tipo": "nacional"},
@@ -621,10 +642,249 @@ DOMINIOS_BLOQUEADOS = [
     "portafolio.co", "eltiempo.com",
     "blogs.portafolio.co", "amp.portafolio.co", "m.portafolio.co",
     "amp.eltiempo.com", "m.eltiempo.com", "especiales.eltiempo.com",
-    "enter.co", "citytv.com.co",
+    "enter.co", "citytv.com.co", "cronista.com",
 ]
 
-LISTA_NEGRA_EL_TIEMPO = []
+MEDIOS_PROHIBIDOS = {
+    "el_tiempo": {
+        "label": "El Tiempo",
+        "dominios": [
+            "eltiempo.com", "m.eltiempo.com", "amp.eltiempo.com",
+            "especiales.eltiempo.com",
+        ],
+        "source_aliases": [
+            "el tiempo", "eltiempo.com", "el tiempo play",
+        ],
+        "title_aliases": [
+            "el tiempo", "eltiempo.com", "el tiempo play",
+        ],
+        "signatures": [
+            "casa editorial el tiempo",
+            "el tiempo play",
+            "el tiempoplay",
+            "sigue a el tiempo en whatsapp",
+            "suscribete a el tiempo",
+            "suscríbete a el tiempo",
+            "fuente: el tiempo",
+        ],
+        "lista_negra_url": "https://news.google.com/rss/search?q=site:eltiempo.com&hl=es-419&gl=CO&ceid=CO:es-419",
+    },
+    "portafolio": {
+        "label": "Portafolio",
+        "dominios": [
+            "portafolio.co", "blogs.portafolio.co", "amp.portafolio.co",
+            "m.portafolio.co",
+        ],
+        "source_aliases": [
+            "portafolio", "portafolio.co",
+        ],
+        "title_aliases": [
+            "portafolio", "portafolio.co",
+        ],
+        "signatures": [
+            "portafolio digital",
+            "suscribete a portafolio",
+            "suscríbete a portafolio",
+            "portafolio.co",
+        ],
+        "lista_negra_url": "https://news.google.com/rss/search?q=site:portafolio.co&hl=es-419&gl=CO&ceid=CO:es-419",
+    },
+    "citytv": {
+        "label": "CityTV",
+        "dominios": [
+            "citytv.com.co",
+        ],
+        "source_aliases": [
+            "citytv", "city tv", "citytv bogota",
+        ],
+        "title_aliases": [
+            "citytv", "city tv",
+        ],
+        "signatures": [
+            "citynoticias",
+        ],
+        "lista_negra_url": "https://news.google.com/rss/search?q=site:citytv.com.co&hl=es-419&gl=CO&ceid=CO:es-419",
+    },
+    "cronista": {
+        "label": "El Cronista",
+        "dominios": [
+            "cronista.com", "www.cronista.com",
+        ],
+        "source_aliases": [
+            "el cronista", "cronista", "cronista.com",
+        ],
+        "title_aliases": [
+            "el cronista", "cronista", "cronista.com",
+        ],
+        "signatures": [
+            "cronista.com",
+            "el cronista",
+            "cronista mexico",
+        ],
+        "lista_negra_url": "https://news.google.com/rss/search?q=site:cronista.com&hl=es-419&gl=CO&ceid=CO:es-419",
+    },
+}
+
+LISTA_NEGRA_MEDIOS = []
+LISTA_NEGRA_EL_TIEMPO = LISTA_NEGRA_MEDIOS
+LISTA_NEGRA_MEDIOS_HASHES = set()
+LISTA_NEGRA_MEDIOS_POR_ANCLA = {}
+OLLAMA_SIMILITUD_CACHE = None
+OLLAMA_CLI_PATH = None
+OLLAMA_VALIDACIONES_RESTANTES = 0
+CONTENIDO_ARTICULOS_CACHE = {}
+CONTENIDO_ARTICULOS_LOCK = threading.Lock()
+
+CATEGORIAS_RELACIONADAS = {
+    "vida": {"vida", "salud", "cultura", "tendencias", "virales"},
+    "salud": {"salud", "vida", "tendencias"},
+    "negocios": {"negocios", "economia", "finanzas", "mis finanzas"},
+    "finanzas": {"finanzas", "mis finanzas", "economia", "negocios"},
+    "mis finanzas": {"mis finanzas", "finanzas", "economia"},
+    "tecnologia": {"tecnologia", "tendencias"},
+}
+
+
+def _expandir_categorias_solicitadas(categorias):
+    if not categorias:
+        return set()
+    expandidas = set(categorias)
+    for cat in list(expandidas):
+        expandidas.update(CATEGORIAS_RELACIONADAS.get(cat, set()))
+    return expandidas
+
+
+def _resolver_categoria_solicitada(categorias_fuente, categorias_solicitadas):
+    if not categorias_solicitadas:
+        return None
+    fuente_set = set(categorias_fuente or [])
+    for cat in categorias_solicitadas:
+        if cat in fuente_set:
+            return cat
+        relacionadas = CATEGORIAS_RELACIONADAS.get(cat, set())
+        if relacionadas and fuente_set.intersection(relacionadas):
+            return cat
+    return None
+
+
+PALABRAS_TENDENCIA_VALIDAS = (
+    "tendencia", "tendencias", "viral", "virales", "redes", "sociales",
+    "entretenimiento", "famosos", "streaming", "moda", "belleza",
+    "lifestyle", "hogar", "bienestar", "apps", "tecnologia",
+)
+
+PALABRAS_TENDENCIA_EXCLUIDAS = (
+    "dolar", "euro", "trm", "cotizacion", "apertura", "inflacion", "tasas",
+    "petro", "elecciones", "votacion", "congreso", "judicial", "captur",
+    "asesin", "accidente", "balacera", "partido", "liga", "vs ",
+    "previa", "marcador", "gol", "clima", "temperaturas",
+)
+
+PALABRAS_RUIDO_GENERAL = (
+    "partido", "liga", "vs ", "previa", "marcador", "gol", "penal",
+    "captur", "captura", "asesin", "balacera", "fiscalia", "juez",
+    "tribunal", "accidente", "choque", "hurto",
+)
+
+CATEGORIA_REGLAS = {
+    "salud": {
+        "include": ("salud", "medico", "medica", "medicina", "hospital", "clinica", "vacuna", "tratamiento", "sintomas",
+                    "bienestar", "nutricion", "ejercicio", "salud mental", "psicologia", "cancer", "diabetes",
+                    "obesidad", "paciente", "pacientes", "sindrome", "enfermedad", "enfermedades", "virus", "epidemia"),
+        "exclude": PALABRAS_RUIDO_GENERAL + ("dolar", "euro", "gasolina", "supermercados"),
+    },
+    "vida": {
+        "include": ("vida", "hogar", "familia", "pareja", "viaje", "viajes", "vacaciones", "mascota", "mascotas",
+                    "cocina", "receta", "descanso", "hotel", "estilo de vida", "habitos", "bienestar", "convivencia"),
+        "exclude": PALABRAS_RUIDO_GENERAL + ("dolar", "euro", "inflacion", "elecciones"),
+    },
+    "tendencias": {
+        "include": ("tendencia", "tendencias", "viral", "virales", "redes", "streaming", "famos", "moda",
+                    "belleza", "lifestyle", "hogar", "consumo", "tecnologia", "app", "apps", "entretenimiento"),
+        "exclude": PALABRAS_TENDENCIA_EXCLUIDAS,
+    },
+    "negocios": {
+        "include": ("empresa", "empresas", "negocio", "negocios", "mercado", "industria", "comercio", "startup",
+                    "startups", "emprendimiento", "inversion", "alianza", "ventas", "consumo", "supermercados",
+                    "clientes", "empresarial"),
+        "exclude": PALABRAS_RUIDO_GENERAL,
+    },
+    "finanzas": {
+        "include": ("finanzas", "banco", "banca", "credito", "deuda", "ahorro", "inversion", "bolsa",
+                    "dolar", "euro", "inflacion", "tasa", "tasas", "trm", "divisa", "cotizacion",
+                    "mercado", "hacienda", "tributaria", "tributario"),
+        "exclude": PALABRAS_RUIDO_GENERAL,
+    },
+    "mis finanzas": {
+        "include": ("finanzas personales", "ahorro", "ahorrar", "tarjeta", "credito", "subsidio", "dian", "impuesto",
+                    "renta", "pension", "cesant", "presupuesto", "factura", "devolucion", "iva", "bolsillo", "pagar"),
+        "exclude": PALABRAS_RUIDO_GENERAL,
+    },
+    "tecnologia": {
+        "include": ("tecnologia", "ia", "inteligencia artificial", "app", "apps", "celular", "iphone", "android",
+                    "samsung", "internet", "starlink", "robotica", "software", "digital", "startup", "ciberseguridad", "datos"),
+        "exclude": PALABRAS_RUIDO_GENERAL,
+    },
+    "cultura": {
+        "include": ("cultura", "cine", "musica", "libro", "libros", "teatro", "arte", "artista", "festival",
+                    "museo", "concierto", "pelicula", "peliculas", "serie", "series", "literatura", "danza", "netflix"),
+        "exclude": PALABRAS_RUIDO_GENERAL + ("dolar", "inflacion", "gasolina"),
+    },
+}
+
+
+def _texto_categoria_norm(texto):
+    texto = unicodedata.normalize("NFKD", texto or "").encode("ascii", "ignore").decode("ascii")
+    return _normalizar_texto_medio(texto)
+
+
+def _texto_contiene_patron(texto, patron):
+    patron = _texto_categoria_norm(patron)
+    if not patron:
+        return False
+    if " " in patron:
+        return patron in texto
+    return re.search(r"\b" + re.escape(patron) + r"\b", texto) is not None
+
+
+def _articulo_coincide_categoria(categoria, titulo="", resumen="", fuente="", categorias_fuente=None):
+    categorias_fuente = set(categorias_fuente or [])
+    texto = _texto_categoria_norm(f"{titulo} {resumen} {fuente}")
+    if not texto:
+        return False
+
+    regla = CATEGORIA_REGLAS.get(categoria)
+    if not regla:
+        return categoria in categorias_fuente
+
+    include = regla.get("include", ())
+    exclude = regla.get("exclude", ())
+    include_hits = sum(1 for palabra in include if _texto_contiene_patron(texto, palabra))
+    exclude_hits = sum(1 for palabra in exclude if _texto_contiene_patron(texto, palabra))
+
+    if categoria in categorias_fuente and include_hits >= 1 and exclude_hits == 0:
+        return True
+
+    if include_hits >= 2 and exclude_hits == 0:
+        return True
+
+    if include_hits >= 1 and categoria in categorias_fuente and exclude_hits <= 1:
+        return True
+
+    return False
+
+
+def _es_tendencia_valida(titulo="", resumen="", fuente=""):
+    texto = unicodedata.normalize("NFKD", f"{titulo} {resumen} {fuente}").encode("ascii", "ignore").decode("ascii")
+    texto = _normalizar_texto_medio(texto)
+    if not texto:
+        return False
+    if any(p in texto for p in PALABRAS_TENDENCIA_EXCLUIDAS):
+        return False
+    if any(p in texto for p in PALABRAS_TENDENCIA_VALIDAS):
+        return True
+    fuente_norm = unicodedata.normalize("NFKD", fuente).encode("ascii", "ignore").decode("ascii")
+    return "tendencias" in _normalizar_texto_medio(fuente_norm)
 
 def _extraer_palabras_clave(texto):
     if not texto: return set()
@@ -632,6 +892,563 @@ def _extraer_palabras_clave(texto):
     palabras = set(re.findall(r'\b[a-záéíóúñ]{7,}\b', texto.lower()))
     comunes = {"colombia", "nacional", "gobierno", "general", "informes", "durante", "noticias", "presenta", "también", "nuestro", "después", "algunos"}
     return cifras.union(palabras - comunes)
+
+def _normalizar_texto_medio(texto):
+    if not texto:
+        return ""
+    return re.sub(r"[^a-z0-9]+", " ", texto.lower()).strip()
+
+
+def _extraer_tokens_relevantes(texto):
+    if not texto:
+        return set()
+    tokens = set(re.findall(r"\b[a-zÃ¡Ã©Ã­Ã³ÃºÃ±]{5,}\b", texto.lower()))
+    stop = {
+        "colombia", "noticias", "general", "mundo", "ultima", "ultimas",
+        "sobre", "desde", "hasta", "entre", "contra", "porque", "donde",
+        "cuando", "todos", "todas", "tras", "segun", "nuevo", "nueva",
+        "este", "esta", "estos", "estas",
+    }
+    return tokens - stop
+
+
+def _normalizar_para_repeticion(texto):
+    texto = _limpiar_html(texto or "")
+    texto = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
+    texto = texto.lower()
+    texto = re.sub(r"https?://\S+", " ", texto)
+    texto = re.sub(r"[^a-z0-9\s]+", " ", texto)
+    texto = re.sub(r"\s+", " ", texto).strip()
+    return texto
+
+
+def _raiz_simple_token(token):
+    token = (token or "").strip().lower()
+    sufijos = (
+        "amientos", "imiento", "imientos", "aciones", "adoras", "adores",
+        "adoras", "adora", "adores", "antes", "ancia", "encias", "encia",
+        "idades", "idad", "mente", "ciones", "cion", "siones", "sion",
+        "arios", "arias", "ario", "aria", "logias", "logia", "ismos",
+        "istas", "ismos", "istas", "ables", "ible", "ibles", "ables",
+        "anzas", "anza", "icos", "icas", "ico", "ica", "ales", "ados",
+        "adas", "idos", "idas", "ando", "iendo", "oras", "ores", "osa",
+        "oso", "ivas", "ivos", "iva", "ivo", "es", "s",
+    )
+    for sufijo in sufijos:
+        if len(token) - len(sufijo) >= 5 and token.endswith(sufijo):
+            return token[:-len(sufijo)]
+    return token
+
+
+def _extraer_tokens_repeticion(texto):
+    texto = _normalizar_para_repeticion(texto)
+    tokens = {
+        _raiz_simple_token(token)
+        for token in re.findall(r"\b[a-z0-9]{5,}\b", texto)
+    }
+    stop = {
+        "colombia", "noticias", "general", "ultima", "ultimas", "mundo",
+        "fuente", "video", "fotos", "tras", "sobre", "desde", "hasta",
+        "entre", "porque", "nuevo", "nueva", "este", "esta", "estos",
+        "estas", "hoy", "ayer",
+    }
+    stop_raices = {_raiz_simple_token(token) for token in stop}
+    return {token for token in tokens if token and token not in stop_raices}
+
+
+def _tokens_repeticion_desde_url(url):
+    if not url:
+        return []
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except Exception:
+        return []
+    slug = urllib.parse.unquote(parsed.path or "")
+    slug = slug.replace("-", " ").replace("_", " ").replace("/", " ")
+    slug = _normalizar_para_repeticion(slug)
+    tokens = []
+    for token in slug.split():
+        if len(token) < 5 or token.isdigit():
+            continue
+        raiz = _raiz_simple_token(token)
+        if raiz:
+            tokens.append(raiz)
+    return tokens
+
+
+def _extraer_frases_repeticion(titulo, url=""):
+    texto = _normalizar_para_repeticion(titulo)
+    tokens_titulo = [_raiz_simple_token(t) for t in texto.split() if len(t) >= 4 and not t.isdigit()]
+    tokens_slug = _tokens_repeticion_desde_url(url)
+    stop = {
+        "colombia", "santander", "bogota", "medellin", "cartagena", "semana",
+        "santa", "tiempo", "portafolio", "citytv", "visit", "visitant",
+        "articul", "notici", "colomb", "ubic", "hor", "debe", "saber",
+        "recorr", "miles", "mismo", "mism", "larg", "largo",
+    }
+
+    frases = []
+    for fuente_tokens in (tokens_titulo, tokens_slug):
+        n_tokens = len(fuente_tokens)
+        for size in (5, 4, 3):
+            if n_tokens < size:
+                continue
+            for i in range(0, n_tokens - size + 1):
+                ventana = fuente_tokens[i:i + size]
+                if sum(1 for t in ventana if t and t not in stop) < max(2, size - 1):
+                    continue
+                frase = " ".join(ventana).strip()
+                if len(frase) >= 18:
+                    frases.append(frase)
+    frases = sorted(set(frases), key=lambda x: (-len(x), x))
+    return frases[:10]
+
+
+def _construir_huella_repeticion(titulo, resumen, url=""):
+    resumen_limpio = _limpiar_html(resumen) or titulo or ""
+    titulo_norm = _normalizar_para_repeticion(titulo)[:180]
+    resumen_norm = _normalizar_para_repeticion(resumen_limpio)[:420]
+    slug_tokens = _tokens_repeticion_desde_url(url)
+    slug_norm = " ".join(slug_tokens)[:180]
+    texto_repeticion = f"{titulo_norm} {resumen_norm} {slug_norm}".strip()
+    tokens_repeticion = _extraer_tokens_repeticion(f"{titulo} {resumen_limpio} {slug_norm}")
+    firma_tokens_repeticion = " ".join(sorted(tokens_repeticion))[:420]
+    frases_repeticion = _extraer_frases_repeticion(titulo, url)
+    anclas = sorted(tokens_repeticion, key=lambda t: (-len(t), t))[:6]
+    hash_repeticion = hashlib.sha1(texto_repeticion.encode("utf-8", errors="ignore")).hexdigest()
+    return {
+        "resumen_limpio": resumen_limpio,
+        "texto_repeticion": texto_repeticion,
+        "tokens_repeticion": tokens_repeticion,
+        "slug_repeticion": slug_norm,
+        "firma_tokens_repeticion": firma_tokens_repeticion,
+        "frases_repeticion": frases_repeticion,
+        "anclas_repeticion": anclas,
+        "hash_repeticion": hash_repeticion,
+    }
+
+
+def _registro_historial_desde_articulo(articulo):
+    return {
+        "titulo": articulo.get("titulo", ""),
+        "fuente": articulo.get("fuente", ""),
+        "url": articulo.get("url", ""),
+        "fecha": articulo.get("fecha_str", ""),
+        "t_norm": articulo.get("t_norm", ""),
+        "texto_repeticion": articulo.get("texto_repeticion", ""),
+        "hash_repeticion": articulo.get("hash_repeticion", ""),
+        "tokens_repeticion": sorted(articulo.get("tokens_repeticion", set())),
+        "slug_repeticion": articulo.get("slug_repeticion", ""),
+        "firma_tokens_repeticion": articulo.get("firma_tokens_repeticion", ""),
+        "frases_repeticion": list(articulo.get("frases_repeticion", [])),
+        "anclas_repeticion": list(articulo.get("anclas_repeticion", [])),
+    }
+
+
+def _cargar_historial_articulos():
+    if not os.path.exists(HISTORIAL_ARTICULOS_PATH):
+        return []
+    try:
+        with open(HISTORIAL_ARTICULOS_PATH, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        if not isinstance(data, list):
+            return []
+        historial = []
+        for item in data:
+            if not isinstance(item, dict) or not item.get("hash_repeticion"):
+                continue
+            item["tokens_repeticion"] = set(item.get("tokens_repeticion", []))
+            item["frases_repeticion"] = list(item.get("frases_repeticion", []))
+            item["anclas_repeticion"] = list(item.get("anclas_repeticion", []))
+            historial.append(item)
+        return historial
+    except Exception:
+        return []
+
+
+def _guardar_historial_articulos(historial):
+    try:
+        serializable = []
+        for item in historial[-MAX_HISTORIAL_ARTICULOS:]:
+            row = dict(item)
+            row["tokens_repeticion"] = sorted(row.get("tokens_repeticion", set()))
+            row["frases_repeticion"] = list(row.get("frases_repeticion", []))
+            row["anclas_repeticion"] = list(row.get("anclas_repeticion", []))
+            serializable.append(row)
+        with open(HISTORIAL_ARTICULOS_PATH, "w", encoding="utf-8") as fh:
+            json.dump(serializable, fh, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        log.warning(f"No se pudo guardar historial de articulos: {exc}")
+
+
+def _agregar_articulo_a_indice(articulo, hashes, por_ancla):
+    hash_rep = articulo.get("hash_repeticion", "")
+    if hash_rep:
+        hashes.add(hash_rep)
+    for ancla in articulo.get("anclas_repeticion", []):
+        por_ancla.setdefault(ancla, []).append(articulo)
+    for frase in articulo.get("frases_repeticion", [])[:6]:
+        if len(frase) >= 18:
+            por_ancla.setdefault(frase, []).append(articulo)
+
+
+def _indexar_articulos_repeticion(articulos):
+    hashes = set()
+    por_ancla = {}
+    for item in articulos:
+        _agregar_articulo_a_indice(item, hashes, por_ancla)
+    return hashes, por_ancla
+
+
+def _indexar_historial_articulos(historial):
+    return _indexar_articulos_repeticion(historial)
+
+
+def _obtener_candidatos_repeticion(articulo, por_ancla, max_candidatos=80):
+    candidatos = {}
+    claves_busqueda = list(articulo.get("anclas_repeticion", []))
+    claves_busqueda.extend(frase for frase in articulo.get("frases_repeticion", [])[:6] if len(frase) >= 18)
+    for ancla in claves_busqueda:
+        for item in por_ancla.get(ancla, []):
+            clave = item.get("hash_repeticion", f"id-{id(item)}")
+            candidatos[clave] = item
+            if len(candidatos) >= max_candidatos:
+                return list(candidatos.values())
+    return list(candidatos.values())
+
+
+def _metricas_similitud_articulos(articulo, referencia):
+    art_t_norm = articulo.get("t_norm", "")
+    ref_t_norm = referencia.get("t_norm", "")
+    titulo_ratio = 0.0
+    if art_t_norm and ref_t_norm and abs(len(art_t_norm) - len(ref_t_norm)) <= 60:
+        titulo_ratio = SequenceMatcher(None, art_t_norm, ref_t_norm).ratio()
+
+    art_texto = articulo.get("texto_repeticion", "")
+    ref_texto = referencia.get("texto_repeticion", "")
+    texto_ratio = 0.0
+    if art_texto and ref_texto:
+        texto_ratio = SequenceMatcher(None, art_texto[:720], ref_texto[:720]).ratio()
+
+    art_firma = articulo.get("firma_tokens_repeticion", "")
+    ref_firma = referencia.get("firma_tokens_repeticion", "")
+    firma_ratio = 0.0
+    if art_firma and ref_firma:
+        firma_ratio = SequenceMatcher(None, art_firma, ref_firma).ratio()
+
+    art_tokens = set(articulo.get("tokens_repeticion", set())) or set(articulo.get("tokens_relevantes", set()))
+    ref_tokens = set(referencia.get("tokens_repeticion", set())) or set(referencia.get("tokens_relevantes", set()))
+    inter = art_tokens.intersection(ref_tokens)
+    union = art_tokens.union(ref_tokens)
+    jaccard = (len(inter) / len(union)) if union else 0.0
+
+    art_frases = {
+        frase for frase in articulo.get("frases_repeticion", [])
+        if frase and len(frase) >= 18
+    }
+    ref_frases = {
+        frase for frase in referencia.get("frases_repeticion", [])
+        if frase and len(frase) >= 18
+    }
+    frases_comunes = art_frases.intersection(ref_frases)
+
+    art_slug_tokens = set((articulo.get("slug_repeticion", "") or "").split())
+    ref_slug_tokens = set((referencia.get("slug_repeticion", "") or "").split())
+    slug_inter = art_slug_tokens.intersection(ref_slug_tokens)
+
+    return {
+        "titulo_ratio": titulo_ratio,
+        "texto_ratio": texto_ratio,
+        "firma_ratio": firma_ratio,
+        "inter": inter,
+        "union": union,
+        "jaccard": jaccard,
+        "frases_comunes": frases_comunes,
+        "slug_inter": slug_inter,
+    }
+
+
+def _es_articulo_muy_parecido(articulo, referencia):
+    hash_art = articulo.get("hash_repeticion", "")
+    hash_ref = referencia.get("hash_repeticion", "")
+    if hash_art and hash_ref and hash_art == hash_ref:
+        return True
+
+    metricas = _metricas_similitud_articulos(articulo, referencia)
+    titulo_ratio = metricas["titulo_ratio"]
+    texto_ratio = metricas["texto_ratio"]
+    firma_ratio = metricas["firma_ratio"]
+    inter = metricas["inter"]
+    jaccard = metricas["jaccard"]
+    frases_comunes = metricas["frases_comunes"]
+    slug_inter = metricas["slug_inter"]
+
+    if titulo_ratio >= 0.95:
+        return True
+    if texto_ratio >= 0.92:
+        return True
+    if any(len(frase) >= 22 for frase in frases_comunes):
+        return True
+    if len(frases_comunes) >= 2:
+        return True
+    if len(frases_comunes) >= 1 and len(inter) >= 4:
+        return True
+    if len(slug_inter) >= 4 and len(inter) >= 5 and titulo_ratio >= 0.50:
+        return True
+    if len(slug_inter) >= 5 and len(inter) >= 5:
+        return True
+    if titulo_ratio >= 0.88 and texto_ratio >= 0.84 and len(inter) >= 4:
+        return True
+    if len(inter) >= 7 and jaccard >= 0.30:
+        return True
+    if len(inter) >= 5 and (firma_ratio >= 0.70 or jaccard >= 0.38):
+        return True
+    if len(inter) >= 4 and titulo_ratio >= 0.70 and (texto_ratio >= 0.66 or firma_ratio >= 0.68):
+        return True
+    if len(inter) >= 6 and titulo_ratio >= 0.55 and firma_ratio >= 0.58:
+        return True
+
+    return False
+
+
+def _es_caso_borde_repeticion(articulo, referencia):
+    metricas = _metricas_similitud_articulos(articulo, referencia)
+    inter = metricas["inter"]
+    if metricas["frases_comunes"]:
+        return True
+    if len(metricas["slug_inter"]) >= 4 and len(inter) >= 4:
+        return True
+    if len(inter) >= 5 and (metricas["firma_ratio"] >= 0.48 or metricas["jaccard"] >= 0.22):
+        return True
+    if metricas["titulo_ratio"] >= 0.42 and len(inter) >= 4:
+        return True
+    return False
+
+
+def _es_coincidencia_indice_repeticion(articulo, hashes, por_ancla, max_candidatos=80):
+    hash_rep = articulo.get("hash_repeticion", "")
+    if hash_rep and hash_rep in hashes:
+        return True
+
+    for referencia in _obtener_candidatos_repeticion(articulo, por_ancla, max_candidatos=max_candidatos):
+        if _es_articulo_muy_parecido(articulo, referencia):
+            return True
+
+    return False
+
+
+def _es_coincidencia_historial(articulo, historial_hashes, historial_por_ancla):
+    return _es_coincidencia_indice_repeticion(
+        articulo,
+        historial_hashes,
+        historial_por_ancla,
+        max_candidatos=60,
+    )
+
+
+def _cargar_cache_ollama_similitud():
+    global OLLAMA_SIMILITUD_CACHE
+    if OLLAMA_SIMILITUD_CACHE is not None:
+        return OLLAMA_SIMILITUD_CACHE
+    if not os.path.exists(OLLAMA_SIMILITUD_CACHE_PATH):
+        OLLAMA_SIMILITUD_CACHE = {}
+        return OLLAMA_SIMILITUD_CACHE
+    try:
+        with open(OLLAMA_SIMILITUD_CACHE_PATH, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        OLLAMA_SIMILITUD_CACHE = data if isinstance(data, dict) else {}
+    except Exception:
+        OLLAMA_SIMILITUD_CACHE = {}
+    return OLLAMA_SIMILITUD_CACHE
+
+
+def _guardar_cache_ollama_similitud():
+    if OLLAMA_SIMILITUD_CACHE is None:
+        return
+    try:
+        with open(OLLAMA_SIMILITUD_CACHE_PATH, "w", encoding="utf-8") as fh:
+            json.dump(OLLAMA_SIMILITUD_CACHE, fh, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+
+def _resolver_ollama_cli():
+    global OLLAMA_CLI_PATH
+    if OLLAMA_CLI_PATH is not None:
+        return OLLAMA_CLI_PATH
+    candidatos = [
+        "ollama",
+        r"C:\Users\photo\AppData\Local\Programs\Ollama\ollama.exe",
+        r"C:\Program Files\Ollama\ollama.exe",
+    ]
+    for candidato in candidatos:
+        try:
+            proc = subprocess.run(
+                [candidato, "--version"],
+                capture_output=True,
+                text=True,
+                timeout=4,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
+            if proc.returncode == 0:
+                OLLAMA_CLI_PATH = candidato
+                return OLLAMA_CLI_PATH
+        except Exception:
+            continue
+    OLLAMA_CLI_PATH = ""
+    return OLLAMA_CLI_PATH
+
+
+def _fetch_texto_url(url, timeout=8, accept_html=False):
+    import urllib.error
+    headers = dict(HEADERS)
+    if accept_html:
+        headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    try:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            contenido = resp.read()
+            encoding = "utf-8"
+            ct = resp.headers.get("Content-Type", "")
+            if "charset=" in ct:
+                encoding = ct.split("charset=")[-1].strip().split(";")[0]
+            try:
+                return contenido.decode(encoding)
+            except Exception:
+                return contenido.decode("utf-8", errors="replace")
+    except Exception:
+        return ""
+
+
+def _extraer_texto_html_articulo(html_str):
+    if not html_str:
+        return ""
+    texto = re.sub(r"(?is)<script.*?>.*?</script>", " ", html_str)
+    texto = re.sub(r"(?is)<style.*?>.*?</style>", " ", texto)
+    texto = re.sub(r"(?is)<noscript.*?>.*?</noscript>", " ", texto)
+    texto = re.sub(r"(?is)<!--.*?-->", " ", texto)
+    texto = re.sub(r"(?is)<(br|p|div|li|h1|h2|h3|article|section)[^>]*>", "\n", texto)
+    texto = re.sub(r"(?is)<[^>]+>", " ", texto)
+    texto = html.unescape(texto)
+    lineas = []
+    vistos = set()
+    for linea in texto.splitlines():
+        limpia = re.sub(r"\s+", " ", linea).strip()
+        if len(limpia) < 60:
+            continue
+        limpia_norm = _normalizar_para_repeticion(limpia)
+        if not limpia_norm or limpia_norm in vistos:
+            continue
+        if "cookies" in limpia_norm or "suscrib" in limpia_norm or "whatsapp" in limpia_norm:
+            continue
+        vistos.add(limpia_norm)
+        lineas.append(limpia)
+        if len(" ".join(lineas)) >= CONTENIDO_PROFUNDO_MAX_CHARS:
+            break
+    return " ".join(lineas)[:CONTENIDO_PROFUNDO_MAX_CHARS]
+
+
+def _obtener_contexto_profundo_articulo(articulo):
+    url = articulo.get("url", "")
+    if not url:
+        return articulo.get("resumen", "")
+    with CONTENIDO_ARTICULOS_LOCK:
+        if url in CONTENIDO_ARTICULOS_CACHE:
+            return CONTENIDO_ARTICULOS_CACHE[url]
+    html_str = _fetch_texto_url(url, timeout=7, accept_html=True)
+    contenido = _extraer_texto_html_articulo(html_str)
+    if not contenido:
+        contenido = articulo.get("resumen_limpio") or articulo.get("resumen") or articulo.get("titulo", "")
+    with CONTENIDO_ARTICULOS_LOCK:
+        CONTENIDO_ARTICULOS_CACHE[url] = contenido[:CONTENIDO_PROFUNDO_MAX_CHARS]
+    return CONTENIDO_ARTICULOS_CACHE[url]
+
+
+def _dictamen_ollama_mismo_tema(articulo, referencia):
+    global OLLAMA_VALIDACIONES_RESTANTES
+    ollama_cli = _resolver_ollama_cli()
+    if not ollama_cli or OLLAMA_VALIDACIONES_RESTANTES <= 0:
+        return False
+
+    cache = _cargar_cache_ollama_similitud()
+    hash_a = articulo.get("hash_repeticion", "")
+    hash_b = referencia.get("hash_repeticion", "")
+    cache_key = "|".join(sorted([hash_a or articulo.get("url", ""), hash_b or referencia.get("url", "")]))
+    if cache_key in cache:
+        return bool(cache[cache_key])
+
+    contexto_a = _obtener_contexto_profundo_articulo(articulo)
+    contexto_b = _obtener_contexto_profundo_articulo(referencia)
+    prompt = (
+        "Responde solo SI o NO.\n"
+        "Determina si estas dos noticias tratan del mismo hecho, tema central o contenido editorial claramente derivado, "
+        "aunque el titular haya sido reescrito.\n\n"
+        f"NOTICIA A\nTitulo: {articulo.get('titulo', '')}\nResumen: {articulo.get('resumen_limpio', articulo.get('resumen', ''))}\n"
+        f"URL: {articulo.get('url', '')}\nContenido: {contexto_a}\n\n"
+        f"NOTICIA B\nTitulo: {referencia.get('titulo', '')}\nResumen: {referencia.get('resumen_limpio', referencia.get('resumen', ''))}\n"
+        f"URL: {referencia.get('url', '')}\nContenido: {contexto_b}\n"
+    )
+
+    try:
+        proc = subprocess.run(
+            [ollama_cli, "run", "llama3.2", prompt],
+            capture_output=True,
+            text=True,
+            timeout=OLLAMA_TIMEOUT_SEGUNDOS,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        salida = (proc.stdout or "").strip().lower()
+        verdict = salida.startswith("si") or salida.startswith("sí")
+    except Exception:
+        verdict = False
+
+    OLLAMA_VALIDACIONES_RESTANTES -= 1
+    cache[cache_key] = bool(verdict)
+    _guardar_cache_ollama_similitud()
+    return verdict
+
+
+def _medio_prohibido_por_texto(url="", titulo="", descripcion="", fuente_rss=""):
+    netloc = _normalize_domain(url)
+    fuente_norm = _normalizar_texto_medio(fuente_rss)
+    titulo_lower = (titulo or "").lower().strip()
+    texto_norm = _normalizar_texto_medio(f"{titulo} {descripcion} {fuente_rss}")
+    separadores = (" - ", " — ", " | ", " – ", " :: ")
+
+    for medio_key, cfg in MEDIOS_PROHIBIDOS.items():
+        for dominio in cfg["dominios"]:
+            if netloc == dominio or netloc.endswith(f".{dominio}"):
+                return medio_key, f"Dominio bloqueado: {dominio}"
+
+        for alias in cfg["source_aliases"]:
+            if fuente_norm == _normalizar_texto_medio(alias):
+                return medio_key, f"Feed RSS Fuente exacta: {fuente_rss}"
+
+        for alias in cfg["title_aliases"]:
+            alias_lower = alias.lower()
+            if any(titulo_lower.endswith(f"{sep}{alias_lower}") for sep in separadores):
+                return medio_key, f"Filtro en TÃ­tulo: {cfg['label']}"
+
+        for firma in cfg["signatures"]:
+            firma_norm = _normalizar_texto_medio(firma)
+            if firma_norm and firma_norm in texto_norm:
+                return medio_key, f"Firma especÃ­fica: '{cfg['label']}'"
+
+    return None, ""
+
+
+def _es_razon_medio_prohibido(razon):
+    razon_norm = _normalizar_texto_medio(razon)
+    if not razon_norm:
+        return False
+    for cfg in MEDIOS_PROHIBIDOS.values():
+        if _normalizar_texto_medio(cfg["label"]) in razon_norm:
+            return True
+        for dominio in cfg["dominios"]:
+            if dominio in razon_norm:
+                return True
+    return False
+
 
 FIRMAS_BLOQUEADAS = [
     # FIX BUG 3: "El Tiempo" (periódico) se quitó de la lista de texto porque es
@@ -718,11 +1535,15 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
     url_lower = url.lower()
     fuente_lower = fuente_rss.lower()
 
+    medio_key, razon_medio = _medio_prohibido_por_texto(url, titulo, descripcion, fuente_rss)
+    if medio_key:
+        return True, razon_medio
+
     # ── Bloqueo explícito por nombre de fuente RSS ──────────────────────
     # Sólo bloqueamos si la fuente dice EXACTAMENTE "el tiempo" o "portafolio"
     # como nombre de medio, no si aparece en cualquier contexto.
     if fuente_lower in ("el tiempo", "portafolio", "portafolio.co",
-                        "eltiempo.com", "el tiempo play"):
+                        "eltiempo.com", "el tiempo play", "citytv", "city tv"):
         return True, f"Feed RSS Fuente exacta: {fuente_rss}"
 
     t_lower = titulo.lower()
@@ -735,6 +1556,10 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
         return True, "Filtro en Título: Portafolio"
 
     # ── Frases EXCLUSIVAS de El Tiempo y Portafolio ─────────────────────
+    if t_lower.endswith(" - citytv") or t_lower.endswith(" â€” citytv") or \
+       t_lower.endswith(" | citytv") or t_lower.endswith(" - city tv"):
+        return True, "Filtro en TÃ­tulo: CityTV"
+
     texto_lower = f"{titulo} {descripcion} {fuente_rss}".lower()
     frases_prohibidas = [
         "artículo exclusivo para suscriptores de el tiempo",
@@ -760,8 +1585,10 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
             b64_part = url_lower.split("articles/")[-1].split("?")[0]
             b64_part += "=" * ((4 - len(b64_part) % 4) % 4)
             decodificado = base64.urlsafe_b64decode(b64_part).decode('utf-8', errors='ignore').lower()
-            # Verificar si el destino real es Portafolio o El Tiempo
-            for dom_bloq in ["portafolio.co", "eltiempo.com"]:
+            dominios_prohibidos = []
+            for cfg in MEDIOS_PROHIBIDOS.values():
+                dominios_prohibidos.extend(cfg["dominios"])
+            for dom_bloq in dominios_prohibidos:
                 if dom_bloq in decodificado:
                     return True, f"Google News redirige a dominio bloqueado: {dom_bloq}"
         except Exception:
@@ -812,6 +1639,8 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
 
     if 'source="el tiempo"' in texto_lower or '>el tiempo</' in texto_lower:
         return True, "Firma oculta RSS: El Tiempo"
+    if 'source="citytv"' in texto_lower or '>citytv</' in texto_lower:
+        return True, "Firma oculta RSS: CityTV"
 
     return False, ""
 
@@ -945,25 +1774,28 @@ def _parsear_feed(xml_str, nombre_fuente):
             continue
 
         t_norm = _normalizar(titulo)[:80]
+        resumen_limpio = _limpiar_html(descripcion) or titulo
         art_claves = _extraer_palabras_clave(titulo + " " + descripcion)
+        huella_repeticion = _construir_huella_repeticion(titulo, resumen_limpio, url)
 
         art_data = {
             "titulo":     titulo,
-            "resumen":    _limpiar_html(descripcion) or titulo,
+            "resumen":    resumen_limpio,
             "url":        url,
             "fecha_dt":   fecha_dt,
             "fecha_date": _fecha_a_date_colombia(fecha_dt),
             "fecha_str":  _fecha_display(fecha_dt),
             "fuente":     nombre_fuente,
             "t_norm":     t_norm,
-            "claves":     art_claves
+            "claves":     art_claves,
+            "tokens_relevantes": _extraer_tokens_relevantes(f"{titulo} {descripcion}"),
+            **huella_repeticion,
         }
 
         bloqueado, razon = _esta_bloqueado(url, titulo, descripcion, fuente_rss, filtrar_argentina=False)
         if bloqueado:
-            razon_lower = razon.lower()
-            if "el tiempo" in razon_lower or "portafolio" in razon_lower or "eltiempo.com" in razon_lower:
-                LISTA_NEGRA_EL_TIEMPO.append(art_data)
+            if _es_razon_medio_prohibido(razon):
+                LISTA_NEGRA_MEDIOS.append(art_data)
             continue
 
         articulos.append(art_data)
@@ -1006,6 +1838,7 @@ def _parsear_forbes_economia_html(html_str, nombre_fuente):
             continue
 
         t_norm = _normalizar(titulo)[:80]
+        huella_repeticion = _construir_huella_repeticion(titulo, titulo, url)
         art_data = {
             "titulo": titulo,
             "resumen": titulo,
@@ -1016,18 +1849,76 @@ def _parsear_forbes_economia_html(html_str, nombre_fuente):
             "fuente": nombre_fuente,
             "t_norm": t_norm,
             "claves": _extraer_palabras_clave(titulo),
+            "tokens_relevantes": _extraer_tokens_relevantes(titulo),
+            **huella_repeticion,
         }
 
         bloqueado, razon = _esta_bloqueado(url, titulo, "", "", filtrar_argentina=False)
         if bloqueado:
-            razon_lower = razon.lower()
-            if "el tiempo" in razon_lower or "portafolio" in razon_lower or "eltiempo.com" in razon_lower:
-                LISTA_NEGRA_EL_TIEMPO.append(art_data)
+            if _es_razon_medio_prohibido(razon):
+                LISTA_NEGRA_MEDIOS.append(art_data)
             continue
 
         articulos.append(art_data)
 
     return articulos
+
+
+def _cargar_lista_negra_medios(fecha_inicio=None, fecha_fin=None, verbose=True):
+    global LISTA_NEGRA_MEDIOS_HASHES, LISTA_NEGRA_MEDIOS_POR_ANCLA
+    LISTA_NEGRA_MEDIOS.clear()
+    LISTA_NEGRA_MEDIOS_HASHES = set()
+    LISTA_NEGRA_MEDIOS_POR_ANCLA = {}
+
+    fecha_ref = fecha_fin or fecha_inicio or _fecha_a_date_colombia(datetime.now(timezone.utc))
+    fecha_negra_fin = fecha_fin or fecha_ref
+    fecha_negra_inicio = fecha_inicio or fecha_ref
+    fecha_negra_inicio = min(fecha_negra_inicio, fecha_negra_fin) - timedelta(days=VENTANA_LISTA_NEGRA_DIAS)
+
+    fuentes_lista_negra = []
+    for cfg in MEDIOS_PROHIBIDOS.values():
+        fuentes_lista_negra.append({
+            "nombre": f"{cfg['label']} Base",
+            "url": cfg["lista_negra_url"],
+            "categorias": ["general"],
+            "tipo": "nacional",
+        })
+
+    with ThreadPoolExecutor(max_workers=min(3, len(fuentes_lista_negra))) as executor:
+        futuro_a_fuente = {
+            executor.submit(_fetch_fuente, f, fecha_negra_inicio, fecha_negra_fin): f
+            for f in fuentes_lista_negra
+        }
+        for futuro in as_completed(futuro_a_fuente):
+            try:
+                _, _, articulos = futuro.result()
+            except Exception:
+                articulos = []
+            if articulos:
+                LISTA_NEGRA_MEDIOS.extend(articulos)
+
+    LISTA_NEGRA_MEDIOS_HASHES, LISTA_NEGRA_MEDIOS_POR_ANCLA = _indexar_articulos_repeticion(LISTA_NEGRA_MEDIOS)
+
+    if verbose:
+        log.info(f"  [✓] {len(LISTA_NEGRA_MEDIOS)} noticias en lista negra de medios bloqueados.")
+
+
+def _es_coincidencia_lista_negra(articulo, lista_negra_hashes, lista_negra_por_ancla):
+    if _es_coincidencia_indice_repeticion(
+        articulo,
+        lista_negra_hashes,
+        lista_negra_por_ancla,
+        max_candidatos=40,
+    ):
+        return True
+
+    candidatos = _obtener_candidatos_repeticion(articulo, lista_negra_por_ancla, max_candidatos=12)
+    for referencia in candidatos[:4]:
+        if not _es_caso_borde_repeticion(articulo, referencia):
+            continue
+        if _dictamen_ollama_mismo_tema(articulo, referencia):
+            return True
+    return False
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1086,52 +1977,39 @@ def _fetch_fuente(fuente, fecha_inicio, fecha_fin):
 def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=None,
                     max_por_fuente=50, max_total=1000, verbose=True,
                     tipo_noticias="ambas", filtrar_argentina=True):
+    global OLLAMA_VALIDACIONES_RESTANTES
+    OLLAMA_VALIDACIONES_RESTANTES = MAX_VALIDACIONES_OLLAMA_POR_BUSQUEDA
+
     if categorias_seleccionadas:
-        cats_lower = set(c.lower() for c in categorias_seleccionadas)
+        cats_ordenadas = [c.lower() for c in categorias_seleccionadas]
     else:
-        cats_lower = None
+        cats_ordenadas = []
+
+    cats_filtrado = list(cats_ordenadas)
+    cats_filtrado_set = set(cats_filtrado) if cats_filtrado else None
+    cats_expandidas = _expandir_categorias_solicitadas(cats_filtrado) if cats_filtrado else set()
 
     fuentes = []
-    for f in FUENTES_RSS:
-        if tipo_noticias != "ambas":
-            if f.get("tipo", "nacional") != tipo_noticias:
-                continue
-        if cats_lower is None:
-            fuentes.append(f)
-        else:
-            if any(c in cats_lower for c in f["categorias"]):
-                fuentes.append(f)
+    for fuente in FUENTES_RSS:
+        if tipo_noticias != "ambas" and fuente.get("tipo", "nacional") != tipo_noticias:
+            continue
+        if not cats_filtrado:
+            fuentes.append(fuente)
+            continue
+
+        coincide_categoria = any(c in cats_expandidas for c in fuente["categorias"]) if cats_expandidas else False
+        if coincide_categoria:
+            fuentes.append(fuente)
 
     if verbose:
         log.info("")
         log.info("=" * 60)
-        log.info("  BUSCADOR SANTAMARIA DE NOTICIAS — V5 (OPTIMIZADO)")
+        log.info("  BUSCADOR DE NOTICIAS CAPA BRINDADA - V.6")
         log.info("=" * 60)
-        
-        log.info("  [!] Descargando feeds base de El Tiempo para Lista Negra...")
-    
-    global LISTA_NEGRA_EL_TIEMPO
-    LISTA_NEGRA_EL_TIEMPO = []
-    
-    # Fuentes directas para alimentar la Lista Negra
-    fuentes_base_et = [
-        {"nombre": "El Tiempo Base", "url": "https://www.eltiempo.com/rss/colombia.xml"},
-        {"nombre": "El Tiempo Eco", "url": "https://www.eltiempo.com/rss/economia.xml"},
-        {"nombre": "Portafolio Base", "url": "https://www.portafolio.co/rss"}
-    ]
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        futuro_a_fuente_et = {
-            executor.submit(_fetch_rss, f["url"]): f
-            for f in fuentes_base_et
-        }
-        for futuro in as_completed(futuro_a_fuente_et):
-            xml_str = futuro.result()
-            if xml_str:
-                _parsear_feed(xml_str, futuro_a_fuente_et[futuro]["nombre"])
-                
-    if verbose:
-        log.info(f"  [✓] {len(LISTA_NEGRA_EL_TIEMPO)} noticias de El Tiempo en Lista Negra.")
-        
+        log.info("  [!] Descargando lista negra de El Tiempo, Portafolio y CityTV...")
+
+    _cargar_lista_negra_medios(fecha_inicio=fecha_inicio, fecha_fin=fecha_fin, verbose=verbose)
+
     if fecha_inicio and fecha_fin:
         if fecha_inicio == fecha_fin:
             fecha_info = fecha_inicio.strftime("%Y-%m-%d")
@@ -1139,24 +2017,32 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
             fecha_info = f"{fecha_inicio.strftime('%Y-%m-%d')} a {fecha_fin.strftime('%Y-%m-%d')}"
     else:
         fecha_info = "Todas"
-    tipo_info = {"nacional": "🇨🇴 Nacional", "internacional": "🌍 Internacional",
-                 "ambas": "🌐 Ambas"}.get(tipo_noticias, tipo_noticias)
-    log.info(f"  Fuentes seleccionadas: {len(fuentes)}")
-    log.info(f"  Tipo de noticias: {tipo_info}")
-    log.info(f"  Filtro Argentina: {'Sí' if filtrar_argentina else 'No'}")
-    log.info(f"  Filtro de fecha: {fecha_info}")
-    log.info("=" * 60)
+
+    tipo_info = {
+        "nacional": "Nacional",
+        "internacional": "Internacional",
+        "ambas": "Ambas",
+    }.get(tipo_noticias, tipo_noticias)
+
+    if verbose:
+        log.info(f"  [OK] {len(LISTA_NEGRA_MEDIOS)} noticias en lista negra.")
+        log.info(f"  Fuentes seleccionadas: {len(fuentes)}")
+        log.info(f"  Tipo de noticias: {tipo_info}")
+        log.info(f"  Filtro Argentina: {'Si' if filtrar_argentina else 'No'}")
+        log.info(f"  Filtro de fecha: {fecha_info}")
+        log.info("=" * 60)
 
     todas = []
     fuentes_fallidas = []
     conteo_fuentes = {}
-    titulos_vistos = []
+    articulos_vistos_hashes = set()
+    articulos_vistos_por_ancla = {}
+    historial_articulos = _cargar_historial_articulos()
+    historial_hashes, historial_por_ancla = _indexar_historial_articulos(historial_articulos)
 
-    # ── Separar fuentes Google (secuenciales por rate-limit) de RSS directas (paralelas) ──
     fuentes_google = [f for f in fuentes if "news.google.com/rss/search?q=" in f["url"]]
     fuentes_directas = [f for f in fuentes if "news.google.com/rss/search?q=" not in f["url"]]
 
-    # ── FASE 1: Fetch paralelo de fuentes RSS directas (sin rate-limit) ──
     resultados_directos = {}
     with ThreadPoolExecutor(max_workers=10) as executor:
         futuro_a_fuente = {
@@ -1165,22 +2051,20 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
         }
         for futuro in as_completed(futuro_a_fuente):
             try:
-                nombre, responded, arts = futuro.result()
-                resultados_directos[nombre] = (responded, arts)
+                nombre, responded, articulos = futuro.result()
+                resultados_directos[nombre] = (responded, articulos)
             except Exception:
-                f = futuro_a_fuente[futuro]
-                resultados_directos[f["nombre"]] = (False, [])
+                fuente = futuro_a_fuente[futuro]
+                resultados_directos[fuente["nombre"]] = (False, [])
 
-    # ── FASE 2: Fetch secuencial de fuentes Google News (respetando rate-limit) ──
     resultados_google = {}
-    for f in fuentes_google:
+    for fuente in fuentes_google:
         try:
-            nombre, responded, arts = _fetch_fuente(f, fecha_inicio, fecha_fin)
-            resultados_google[nombre] = (responded, arts)
+            nombre, responded, articulos = _fetch_fuente(fuente, fecha_inicio, fecha_fin)
+            resultados_google[nombre] = (responded, articulos)
         except Exception:
-            resultados_google[f["nombre"]] = (False, [])
+            resultados_google[fuente["nombre"]] = (False, [])
 
-    # ── FASE 3: Procesar todos los resultados en orden original ──
     todos_resultados = {**resultados_directos, **resultados_google}
 
     for fuente in fuentes:
@@ -1190,8 +2074,8 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
         if not responded:
             fuentes_fallidas.append(nombre)
             if verbose:
-                log.info(f"  ⟳ {nombre}...")
-                log.info(f"    ✗ Sin respuesta")
+                log.info(f"  [...] {nombre}...")
+                log.info("    x Sin respuesta")
             continue
 
         articulos = articulos_fuente
@@ -1199,24 +2083,45 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
         if filtrar_argentina:
             articulos = [
                 art for art in articulos
-                if not _esta_bloqueado(art["url"], art["titulo"],
-                                       art.get("resumen", ""), "",
-                                       filtrar_argentina=True)[0]
+                if not _esta_bloqueado(
+                    art["url"],
+                    art["titulo"],
+                    art.get("resumen", ""),
+                    "",
+                    filtrar_argentina=True,
+                )[0]
             ]
 
         if fecha_inicio and fecha_fin:
             articulos = [a for a in articulos if fecha_inicio <= a["fecha_date"] <= fecha_fin]
 
+        articulos_filtrados_categoria = []
         for art in articulos:
-            if cats_lower:
-                for cat in fuente["categorias"]:
-                    if cat in cats_lower:
-                        art["categoria"] = cat.upper()
+            if cats_filtrado_set:
+                categoria_articulo = None
+                for cat in cats_filtrado:
+                    relacionadas = CATEGORIAS_RELACIONADAS.get(cat, set())
+                    if cat not in fuente["categorias"] and not set(fuente["categorias"]).intersection(relacionadas):
+                        continue
+                    if _articulo_coincide_categoria(
+                        cat,
+                        titulo=art.get("titulo", ""),
+                        resumen=art.get("resumen", ""),
+                        fuente=art.get("fuente", ""),
+                        categorias_fuente=fuente["categorias"],
+                    ):
+                        categoria_articulo = cat
                         break
-                else:
-                    art["categoria"] = fuente["categorias"][0].upper()
+
+                if not categoria_articulo:
+                    continue
+                art["categoria"] = categoria_articulo.upper()
             else:
                 art["categoria"] = fuente["categorias"][0].upper()
+
+            articulos_filtrados_categoria.append(art)
+
+        articulos = articulos_filtrados_categoria
 
         nuevos = []
         for art in articulos[:max_por_fuente]:
@@ -1224,54 +2129,52 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
             if not art_t_norm:
                 continue
 
-            # ── [AÑADIDO SEGURIDAD] VERIFICAR CONTRA LISTA NEGRA EL TIEMPO ──
-            es_clon_et = False
-            art_claves = art.get("claves", set())
-            
-            for et_art in LISTA_NEGRA_EL_TIEMPO:
-                et_t_norm = et_art.get("t_norm", "")
-                # 1. Similitud Título (Optimizado)
-                if abs(len(art_t_norm) - len(et_t_norm)) <= 20:
-                    if SequenceMatcher(None, art_t_norm, et_t_norm).ratio() >= 0.85:
-                        es_clon_et = True
-                        break
-                # 2. Similitud Contenido (Jaccard + Umbral)
-                et_claves = et_art.get("claves", set())
-                if len(art_claves) > 0 and len(et_claves) > 0:
-                    interseccion = art_claves.intersection(et_claves)
-                    if len(interseccion) >= 4:
-                        union = art_claves.union(et_claves)
-                        if (len(interseccion) / len(union)) >= 0.25:
-                            es_clon_et = True
-                            break
-            
-            if es_clon_et:
+            if art.get("categoria") == "TENDENCIAS":
+                if not _es_tendencia_valida(
+                    art.get("titulo", ""),
+                    art.get("resumen", ""),
+                    art.get("fuente", ""),
+                ):
+                    continue
+
+            if art.get("categoria") != "TENDENCIAS" and _es_coincidencia_lista_negra(
+                art,
+                LISTA_NEGRA_MEDIOS_HASHES,
+                LISTA_NEGRA_MEDIOS_POR_ANCLA,
+            ):
                 continue
 
-            es_duplicado = False
-            art_t_claves = set([p for p in art_t_norm.split() if len(p) >= 4])
-            for t_visto, t_visto_claves in titulos_vistos:
-                if art_t_norm == t_visto:
-                    es_duplicado = True
-                    break
-                interseccion = art_t_claves.intersection(t_visto_claves)
-                if len(interseccion) >= 3:
-                    if SequenceMatcher(None, art_t_norm, t_visto).ratio() >= 0.85:
-                        es_duplicado = True
-                        break
-            
-            if not es_duplicado:
-                titulos_vistos.append((art_t_norm, art_t_claves))
+            if _es_coincidencia_historial(art, historial_hashes, historial_por_ancla):
+                continue
+
+            if not _es_coincidencia_indice_repeticion(
+                art,
+                articulos_vistos_hashes,
+                articulos_vistos_por_ancla,
+                max_candidatos=30,
+            ):
+                _agregar_articulo_a_indice(art, articulos_vistos_hashes, articulos_vistos_por_ancla)
                 nuevos.append(art)
 
         todas.extend(nuevos)
         conteo_fuentes[nombre] = len(nuevos)
         if verbose:
-            log.info(f"  ⟳ {nombre}...")
-            log.info(f"    ✓ {len(nuevos)} artículos con fecha verificada")
+            log.info(f"  [...] {nombre}...")
+            log.info(f"    OK {len(nuevos)} articulos con fecha verificada")
 
     todas.sort(key=lambda a: a["fecha_dt"], reverse=True)
     resultado = todas[:max_total]
+
+    if resultado:
+        historial_actualizado = historial_articulos[:]
+        hashes_historial = set(historial_hashes)
+        for art in resultado:
+            hash_rep = art.get("hash_repeticion", "")
+            if not hash_rep or hash_rep in hashes_historial:
+                continue
+            historial_actualizado.append(_registro_historial_desde_articulo(art))
+            hashes_historial.add(hash_rep)
+        _guardar_historial_articulos(historial_actualizado)
 
     notificacion = None
     if len(resultado) == 0:
@@ -1282,20 +2185,20 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
                 fmt = f"del {fecha_inicio.strftime('%d/%m/%Y')} al {fecha_fin.strftime('%d/%m/%Y')}"
             ahora_col = _fecha_a_date_colombia(datetime.now(timezone.utc))
             if fecha_inicio > ahora_col:
-                notificacion = f"⚠ Rango {fmt} es futuro. No hay noticias aún."
+                notificacion = f"Rango {fmt} es futuro. No hay noticias aun."
             else:
                 notificacion = (
-                    f"📭 Sin noticias para el rango {fmt}.\n"
+                    f"Sin noticias para el rango {fmt}.\n"
                     f"   Se consultaron {len(fuentes) - len(fuentes_fallidas)} fuentes.\n"
-                    f"   Las fuentes pueden no tener artículos de esas fechas."
+                    f"   Las fuentes pueden no tener articulos de esas fechas."
                 )
         else:
-            notificacion = "⚠ No se encontraron noticias con los criterios seleccionados."
+            notificacion = "No se encontraron noticias con los criterios seleccionados."
         if verbose:
             log.warning(f"  {notificacion}")
 
     if verbose:
-        log.info(f"\n  ► TOTAL: {len(resultado)} artículos con fecha verificada")
+        log.info(f"\n  TOTAL: {len(resultado)} articulos con fecha verificada")
 
     return {
         "noticias": resultado,
@@ -1305,7 +2208,6 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
         "conteo_fuentes": conteo_fuentes,
         "notificacion": notificacion,
     }
-
 
 # ═══════════════════════════════════════════════════════════════
 # GENERADOR DE EXCEL — UNA HOJA POR CATEGORÍA
@@ -1507,7 +2409,7 @@ class RedirectText:
     def _escribir(self, string):
         self.output.insert("end", string)
         self.output.see("end")
-        self.output.update()
+        self.output.update_idletasks()
     def flush(self): pass
 
 
@@ -1621,13 +2523,13 @@ class AppNoticiasIDEAS(ctk.CTk):
     def __init__(self):
         super().__init__()
         ctk.set_appearance_mode("Light")
-        self.title("Investigador de Noticias Santamaria-V 5.0")
+        self.title("Buscador de Noticias CAPA BRINDADA V.6")
         self.geometry("1200x870")
         self.minsize(1100, 750)
         self.configure(fg_color="#f8f9fa")
         try:
             base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
-            icon_path = os.path.join(base_path, "excel_icon.ico")
+            icon_path = os.path.join(base_path, "blindado_icon.ico")
             self.iconbitmap(icon_path)
         except Exception:
             pass
@@ -1642,7 +2544,7 @@ class AppNoticiasIDEAS(ctk.CTk):
         self.mostrar_bienvenida()
 
     def mostrar_bienvenida(self):
-        print("[READY] System kernel initialized. Core v5.0 — BUGS CORREGIDOS")
+        print("[READY] System kernel initialized. Core v6.0 — CAPA BRINDADA")
         print("[SYNC] Connected to RSS/News XML Feeds ... OK")
         print("[SYNC] Local node 'Colombia-Main' active.")
         print("--------------------------------------------------")
@@ -1665,7 +2567,7 @@ class AppNoticiasIDEAS(ctk.CTk):
         font_family = "Helvetica"
         header_fr = ctk.CTkFrame(self, fg_color="transparent")
         header_fr.pack(fill="x", padx=30, pady=(25, 10))
-        ctk.CTkLabel(header_fr, text="Investigador de Noticias Santamaria",
+        ctk.CTkLabel(header_fr, text="Buscador de Noticias CAPA BRINDADA V.6",
                      font=ctk.CTkFont(family=font_family, size=28, weight="bold"),
                      text_color="#191c1d").pack(anchor="w")
         ctk.CTkLabel(header_fr,
@@ -1784,6 +2686,12 @@ class AppNoticiasIDEAS(ctk.CTk):
             fg_color="#005931", hover_color="#217346", text_color="#ffffff", corner_radius=12,
             command=self.ejecutar_scraper)
         self.btn_ejecutar.pack(fill="x", pady=(10, 0))
+        self.btn_limpieza = ctk.CTkButton(
+            panel_izq, text="Limpieza Pendeja",
+            font=ctk.CTkFont(family=font_family, size=14, weight="bold"), height=42,
+            fg_color="#ba1a1a", hover_color="#93000a", text_color="#ffffff", corner_radius=12,
+            command=self._limpieza_pendeja)
+        self.btn_limpieza.pack(fill="x", pady=(10, 0))
 
         panel_der = ctk.CTkFrame(main_frame, fg_color="transparent")
         panel_der.grid(row=0, column=1, sticky="nsew")
@@ -1822,6 +2730,27 @@ class AppNoticiasIDEAS(ctk.CTk):
         self.entry_fecha_ini.insert(0, hoy)
         self.entry_fecha_fin.delete(0, "end")
         self.entry_fecha_fin.insert(0, hoy)
+
+    def _limpieza_pendeja(self):
+        try:
+            self.btn_ejecutar.configure(state="disabled")
+            self.btn_limpieza.configure(state="disabled")
+            self.consola.delete("0.0", "end")
+            print("[RESET] Limpieza Pendeja activada. Reiniciando la aplicaciÃ³n...")
+
+            if getattr(sys, "frozen", False):
+                comando = [sys.executable, *sys.argv[1:]]
+                cwd = os.path.dirname(sys.executable)
+            else:
+                comando = [sys.executable, os.path.abspath(__file__), *sys.argv[1:]]
+                cwd = os.path.dirname(os.path.abspath(__file__))
+
+            subprocess.Popen(comando, cwd=cwd)
+            self.after(250, self.destroy)
+        except Exception as e:
+            self.btn_ejecutar.configure(state="normal")
+            self.btn_limpieza.configure(state="normal")
+            messagebox.showerror("Reinicio fallido", f"No se pudo reiniciar la aplicaciÃ³n:\n{e}")
 
     def ejecutar_scraper(self):
         seleccionadas = [cat for cat, var in self.vars_categorias.items() if var.get()]

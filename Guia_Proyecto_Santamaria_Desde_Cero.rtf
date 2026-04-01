@@ -1,0 +1,423 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Calibri;}{\f1 Consolas;}}
+\viewkind4\uc1\pard\sa180\sl276\slmult1\f0\fs24
+\b\fs32 Guia completa del proyecto Santamaria Noticias desde cero\par
+\fs24\b0
+Documento explicado para una persona que no sabe Python.\par
+\par
+\b 1. Que es este proyecto\par
+\b0
+Este proyecto es un buscador inteligente de noticias. Su objetivo es recoger noticias de muchas fuentes, limpiarlas, quitar resultados que no sirven, evitar duplicados, organizarlas por categoria y generar un Excel final.\par
+\par
+En palabras simples, el programa hace esta cadena:\par
+\pard\li360
+1. Busca noticias en internet.\par
+2. Lee el contenido basico de cada noticia.\par
+3. Descarta lo bloqueado o repetido.\par
+4. Clasifica lo que queda.\par
+5. Lo entrega en una interfaz y en un archivo Excel.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 2. Que tecnologias usa\par
+\b0
+El proyecto usa varias piezas. Cada una tiene una tarea distinta:\par
+\pard\li360
+- Python: es el lenguaje principal del proyecto.\par
+- RSS y algunas paginas HTML: son la materia prima de donde salen las noticias.\par
+- Streamlit: se usa para una interfaz web moderna.\par
+- CustomTkinter: se usa para la app tipo escritorio de Windows.\par
+- OpenPyXL: se usa para crear archivos Excel.\par
+- PyInstaller: se usa para convertir el proyecto en un archivo .exe.\par
+- Ollama con llama3.2: se usa para la categoria Evergreen.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 3. Estructura real del proyecto\par
+\b0
+Los archivos mas importantes son estos:\par
+\pard\li360
+- \f1 buscador_noticias.py\f0 : el motor principal. Aqui esta casi toda la logica.\par
+- \f1 app.py\f0 : la interfaz web con Streamlit.\par
+- \f1 ia_evergreen.py\f0 : el modulo de inteligencia para detectar temas Evergreen.\par
+- \f1 requirements.txt\f0 : la lista de librerias necesarias.\par
+- \f1 Buscar Santamaria Noticias GUI.spec\f0 : la configuracion para construir el .exe.\par
+- \f1 dist\par
+  \f0 : carpeta donde queda el ejecutable final.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 4. Como nacio el proyecto, paso a paso\par
+\b0
+Si una persona lo construyera desde cero, el orden natural seria este:\par
+\pard\li360
+1. Instalar Python.\par
+2. Crear un archivo principal para el motor.\par
+3. Definir una lista de fuentes de noticias.\par
+4. Aprender a descargar RSS o HTML desde internet.\par
+5. Parsear el resultado para sacar titulo, fecha, resumen y URL.\par
+6. Crear filtros para bloquear articulos no deseados.\par
+7. Crear logica para quitar duplicados.\par
+8. Organizar resultados por categoria.\par
+9. Exportar resultados a Excel.\par
+10. Hacer una interfaz para usar el sistema sin escribir comandos.\par
+11. Empaquetar todo en un .exe con PyInstaller.\par
+12. Agregar IA para la categoria Evergreen.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 5. El archivo mas importante: buscador_noticias.py\par
+\b0
+Este archivo es el cerebro del proyecto. Aqui estan las fuentes, los filtros, la busqueda, la generacion del Excel y tambien la app de escritorio.\par
+\par
+\b 5.1 La lista de fuentes\par
+\b0
+Dentro de \f1 buscador_noticias.py\f0 existe una lista llamada \f1 FUENTES_RSS\f0. Esa lista contiene muchos diccionarios. Un diccionario, dicho simple, es una ficha con datos.\par
+\par
+Cada fuente tiene por lo general:\par
+\pard\li360
+- nombre\par
+- url\par
+- categorias\par
+- tipo de noticia, por ejemplo nacional o internacional\par
+\pard\sa180\sl276\slmult1
+\par
+Ejemplo mental:\par
+\pard\li360\f1
+{\field{\*\fldinst HYPERLINK "L:\\DESCARGAS\\PROYECTOS\\Proyecto Búsqueda Noticias\\buscador_noticias.py"}}{\fldrslt buscador_noticias.py}\f0 guarda una lista de medios como El Heraldo, Semana, Forbes Colombia, Caracol Radio y otros.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 5.2 Las funciones pequenas que ayudan al motor\par
+\b0
+Antes de llegar a la busqueda principal, el archivo tiene funciones auxiliares. Estas son como herramientas pequenas:\par
+\pard\li360
+- \f1 _normalize_domain\f0 : limpia un dominio y le quita cosas como \f1 www.\f0 .\par
+- \f1 _extraer_palabras_clave\f0 : saca palabras utiles de un texto.\par
+- \f1 _normalizar_texto_medio\f0 : convierte un texto a una forma mas facil de comparar.\par
+- \f1 _extraer_tokens_relevantes\f0 : extrae palabras importantes para detectar similitud.\par
+- \f1 _limpiar_html\f0 : elimina etiquetas HTML.\par
+- \f1 _normalizar\f0 : deja textos en una forma comparable.\par
+\pard\sa180\sl276\slmult1
+\par
+Estas funciones no suelen verse en la interfaz, pero son claves para que el buscador no se equivoque.\par
+\par
+\b 5.3 El filtro de bloqueo\par
+\b0
+La funcion \f1 _esta_bloqueado\f0 es uno de los porteros principales del sistema. Su trabajo es decir si un articulo debe ser descartado.\par
+\par
+Que revisa esta funcion:\par
+\pard\li360
+- si la URL viene de un dominio prohibido\par
+- si el titulo tiene pistas de un medio bloqueado\par
+- si la descripcion suena a un contenido no deseado\par
+- si el articulo parece de una fuente que no quieres usar\par
+- si la noticia entra en reglas de filtrado especiales, por ejemplo Argentina\par
+\pard\sa180\sl276\slmult1
+\par
+En tu proyecto actual esta parte es muy importante porque se reforzo para bloquear coincidencias con El Tiempo, CityTV y Portafolio.\par
+\par
+\b 5.4 La lista negra avanzada\par
+\b0
+Ademas del filtro simple por dominio, el proyecto ahora tiene una lista negra mas inteligente.\par
+\par
+Eso significa que no solo bloquea una URL exacta. Tambien puede comparar si una noticia se parece demasiado a otra noticia publicada por un medio prohibido.\par
+\par
+Las piezas clave son:\par
+\pard\li360
+- \f1 MEDIOS_PROHIBIDOS\f0 : define que medios estan prohibidos y con que pistas se reconocen.\par
+- \f1 _cargar_lista_negra_medios\f0 : baja noticias recientes de esos medios y las guarda como referencia.\par
+- \f1 _es_coincidencia_lista_negra\f0 : compara un articulo candidato contra esa referencia y decide si es demasiado parecido.\par
+\pard\sa180\sl276\slmult1
+\par
+Esto es importante porque a veces una noticia no trae el mismo enlace ni la misma firma visible, pero igual es practicamente la misma nota.\par
+\par
+\b 5.5 Como se descargan las noticias\par
+\b0
+La funcion \f1 _fetch_rss\f0 descarga el contenido de una fuente. Luego \f1 _parsear_feed\f0 toma ese texto y extrae datos utiles.\par
+\par
+Cuando una fuente no funciona como RSS normal, el proyecto puede tener un parser especial. Un caso puntual es \f1 _parsear_forbes_economia_html\f0 para Forbes.\par
+\par
+Esto significa que el programa no depende de una sola forma de leer noticias. Si el medio entrega XML, usa XML. Si en un caso puntual toca leer HTML, tambien puede hacerlo.\par
+\par
+\b 5.6 La busqueda principal\par
+\b0
+La funcion mas importante de todo el motor es \f1 buscar_noticias\f0.\par
+\par
+Piensala como una maquina central que recibe ordenes como estas:\par
+\pard\li360
+- que categorias buscar\par
+- desde que fecha hasta que fecha\par
+- cuantas noticias por fuente\par
+- si solo quieres nacionales o internacionales\par
+- si quieres activar ciertos filtros\par
+\pard\sa180\sl276\slmult1
+\par
+Lo que hace por dentro es esto:\par
+\pard\li360
+1. Mira que categorias pediste.\par
+2. Escoge solo las fuentes relacionadas con esas categorias.\par
+3. Carga la lista negra de medios prohibidos.\par
+4. Descarga todas las fuentes necesarias.\par
+5. Filtra noticias bloqueadas.\par
+6. Filtra por fecha.\par
+7. Asigna categoria a cada articulo.\par
+8. Quita duplicados.\par
+9. Si elegiste Evergreen, manda las noticias a la IA.\par
+10. Ordena los resultados por fecha.\par
+11. Devuelve una lista final limpia.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 5.7 Como evita duplicados\par
+\b0
+El proyecto no solo compara si un titulo es exactamente igual. Tambien compara similitud. Para eso usa ideas como:\par
+\pard\li360
+- texto normalizado\par
+- palabras clave compartidas\par
+- porcentaje de parecido entre titulos\par
+\pard\sa180\sl276\slmult1
+\par
+Eso hace que dos noticias casi iguales no salgan duplicadas en el Excel final.\par
+\par
+\b 5.8 La categoria Evergreen\par
+\b0
+La categoria Evergreen es una capa nueva. Sirve para encontrar temas que no dependan del dia de hoy, de una temporada o de una coyuntura puntual.\par
+\par
+Ejemplos de temas Evergreen:\par
+\pard\li360
+- como ahorrar energia en casa\par
+- claves para cuidar la salud mental\par
+- errores comunes al invertir\par
+- consejos de productividad\par
+- guias de bienestar o finanzas personales\par
+\pard\sa180\sl276\slmult1
+\par
+Ejemplos de temas que no son Evergreen:\par
+\pard\li360
+- resultados de elecciones de hoy\par
+- precio del dolar hoy\par
+- un accidente puntual\par
+- un partido de futbol del dia\par
+- una noticia de ultima hora\par
+\pard\sa180\sl276\slmult1
+\par
+\b 6. Como funciona ia_evergreen.py\par
+\b0
+Este archivo es el modulo de inteligencia para la categoria Evergreen.\par
+\par
+Sus funciones principales son estas:\par
+\pard\li360
+- \f1 _texto_norm\f0 : normaliza el texto para compararlo mejor.\par
+- \f1 _puntaje_rapido\f0 : hace una evaluacion rapida por palabras clave.\par
+- \f1 _prompt_evergreen\f0 : construye el mensaje que se envia al modelo.\par
+- \f1 _llamar_ollama\f0 : habla con Ollama.\par
+- \f1 _resultado_fallback\f0 : responde con reglas si la IA no esta disponible.\par
+- \f1 analizar_articulo\f0 : decide si un articulo es evergreen o no.\par
+- \f1 filtrar_y_puntuar_evergreen\f0 : analiza muchos articulos y devuelve solo los aprobados.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 6.1 La idea central de la IA\par
+\b0
+La IA no inventa noticias. Solo clasifica.\par
+\par
+El flujo es asi:\par
+\pard\li360
+1. El sistema ya descargo noticias reales.\par
+2. El filtro normal ya saco lo bloqueado.\par
+3. La IA toma titulo y resumen de cada articulo.\par
+4. Evalua si el tema puede seguir siendo util dentro de meses.\par
+5. Asigna un score.\par
+6. Si el score supera el minimo y el tema es evergreen, el articulo pasa.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 6.2 Que hace Ollama\par
+\b0
+Ollama permite correr un modelo de lenguaje en tu propia maquina. En este proyecto se usa con \f1 llama3.2\f0.\par
+\par
+Eso quiere decir que la clasificacion Evergreen no depende de una API externa para funcionar. El analisis ocurre localmente en el equipo, siempre que Ollama y el modelo esten instalados.\par
+\par
+\b 6.3 Que pasa si la IA falla\par
+\b0
+El proyecto no queda inutil si Ollama no responde. Tiene un plan B llamado fallback.\par
+\par
+Ese fallback usa reglas de palabras:\par
+\pard\li360
+- palabras de coyuntura, como hoy, ultima hora, elecciones, marcador\par
+- palabras evergreen, como guia, consejos, beneficios, ahorro, habitos\par
+\pard\sa180\sl276\slmult1
+\par
+Si detecta demasiada coyuntura, rechaza. Si detecta senales evergreen, aprueba o da mejor puntuacion.\par
+\par
+\b 7. Como funciona app.py\par
+\b0
+Este archivo es la interfaz web con Streamlit. No contiene el cerebro del proyecto. Contiene la parte visual y la conexion con el motor.\par
+\par
+En lenguaje sencillo, \f1 app.py\f0 hace esto:\par
+\pard\li360
+1. Carga el motor principal desde \f1 buscador_noticias.py\f0 .\par
+2. Muestra una barra lateral con categorias, tipo de noticia y fechas.\par
+3. Cuando el usuario hace clic en buscar, llama a \f1 buscar_noticias\f0 .\par
+4. Guarda el resultado en memoria temporal de la interfaz.\par
+5. Muestra una vista previa de resultados.\par
+6. Genera un boton para descargar el Excel.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 7.1 Barra lateral\par
+\b0
+La barra lateral permite controlar la busqueda:\par
+\pard\li360
+- marcar o limpiar categorias\par
+- elegir nacionales, internacionales o ambas\par
+- filtrar Argentina\par
+- seleccionar rango de fechas\par
+\pard\sa180\sl276\slmult1
+\par
+\b 7.2 Boton principal\par
+\b0
+Cuando el usuario pulsa el boton de busqueda, \f1 app.py\f0 convierte las categorias visibles en categorias internas y ejecuta el motor.\par
+\par
+Eso significa que la interfaz no hace la busqueda por si misma. Solo actua como panel de control.\par
+\par
+\b 7.3 Resultado y descarga\par
+\b0
+Si hay noticias, la app:\par
+\pard\li360
+- muestra cantidad de articulos\par
+- muestra tiempo de ejecucion\par
+- enseña una tabla previa\par
+- genera el Excel en memoria\par
+- habilita el boton de descarga\par
+\pard\sa180\sl276\slmult1
+\par
+\b 8. Como funciona la app de escritorio\par
+\b0
+En \f1 buscador_noticias.py\f0 tambien existen clases visuales para una app de escritorio hecha con CustomTkinter.\par
+\par
+Las clases principales son:\par
+\pard\li360
+- \f1 RedirectText\f0 : redirige texto o logs a la interfaz.\par
+- \f1 CTkCalendar\f0 : muestra un calendario.\par
+- \f1 CTkDateEntry\f0 : deja elegir una fecha.\par
+- \f1 AppNoticiasIDEAS\f0 : es la ventana principal de la aplicacion.\par
+\pard\sa180\sl276\slmult1
+\par
+La app de escritorio y la app web son dos caras del mismo motor. Las dos terminan llamando a la logica principal de busqueda.\par
+\par
+\b 9. Como se crea el Excel\par
+\b0
+La clase \f1 GeneradorExcelIDEAS\f0 toma la lista de articulos limpios y crea un archivo Excel.\par
+\par
+Que hace esta clase:\par
+\pard\li360
+- agrupa articulos por categoria\par
+- crea una hoja resumen\par
+- crea una hoja por categoria\par
+- da formato visual\par
+- guarda el archivo final\par
+\pard\sa180\sl276\slmult1
+\par
+Por eso el proyecto no solo busca noticias. Tambien las entrega en un formato de trabajo real.\par
+\par
+\b 10. Como se convierte en .exe\par
+\b0
+Un archivo Python normalmente no se usa como programa de Windows por si solo. Para eso se usa PyInstaller.\par
+\par
+PyInstaller hace esto:\par
+\pard\li360
+1. Analiza que archivos y librerias usa el proyecto.\par
+2. Copia lo necesario.\par
+3. Empaqueta todo.\par
+4. Crea el ejecutable.\par
+\pard\sa180\sl276\slmult1
+\par
+La configuracion esta en \f1 Buscar Santamaria Noticias GUI.spec\f0.\par
+\par
+El resultado final queda en la carpeta \f1 dist\f0.\par
+\par
+\b 11. Como viaja una noticia por dentro del sistema\par
+\b0
+Este es el recorrido completo de una noticia:\par
+\pard\li360
+1. La fuente se define en \f1 FUENTES_RSS\f0.\par
+2. El motor descarga su feed o pagina.\par
+3. El parser extrae datos basicos.\par
+4. El filtro revisa si esa noticia debe bloquearse.\par
+5. La lista negra compara si se parece demasiado a medios prohibidos.\par
+6. El sistema compara si es duplicada.\par
+7. Se asigna una categoria.\par
+8. Si la categoria es Evergreen, se manda a IA.\par
+9. Si aprueba, se conserva.\par
+10. Entra al resultado final y al Excel.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 12. Conceptos de Python explicados facil\par
+\b0
+Para leer este proyecto sin saber programar, basta con entender unas pocas palabras:\par
+\pard\li360
+- Variable: una caja que guarda un dato.\par
+- Funcion: una receta que hace una tarea.\par
+- Lista: un grupo ordenado de elementos.\par
+- Diccionario: una ficha con campos y valores.\par
+- Clase: una plantilla para construir objetos mas complejos.\par
+- Importar: traer funciones o librerias de otro archivo.\par
+- Parametro: dato que entra a una funcion.\par
+- Return: dato que una funcion devuelve.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 13. Como modificar el proyecto sin romperlo\par
+\b0
+Si algun dia quieres cambiar algo, este es el orden mas seguro:\par
+\pard\li360
+1. Si es agregar o quitar medios, tocar primero \f1 FUENTES_RSS\f0.\par
+2. Si es cambiar filtros, tocar \f1 _esta_bloqueado\f0 o la lista negra.\par
+3. Si es cambiar la interfaz web, tocar \f1 app.py\f0.\par
+4. Si es cambiar el Excel, tocar \f1 GeneradorExcelIDEAS\f0.\par
+5. Si es cambiar la clasificacion Evergreen, tocar \f1 ia_evergreen.py\f0.\par
+6. Si cambias la app final, vuelve a construir el .exe.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 14. Donde tener cuidado\par
+\b0
+Hay varias zonas delicadas:\par
+\pard\li360
+- Los medios cambian RSS o estructura con frecuencia.\par
+- Los filtros demasiado agresivos pueden borrar noticias buenas.\par
+- Los filtros demasiado suaves dejan entrar ruido.\par
+- La comparacion por similitud puede crear falsos positivos si se exagera.\par
+- La IA Evergreen puede demorar si se le manda demasiado volumen.\par
+- PyInstaller puede necesitar ajustes cuando se agregan modulos nuevos.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 15. Resumen final\par
+\b0
+Este proyecto no es una sola app. En realidad es un sistema completo con varias capas:\par
+\pard\li360
+- una capa de fuentes\par
+- una capa de descarga\par
+- una capa de limpieza y bloqueo\par
+- una capa de deduplicacion\par
+- una capa de clasificacion\par
+- una capa de IA Evergreen\par
+- una capa de exportacion a Excel\par
+- una capa visual web y otra de escritorio\par
+- una capa final de empaquetado a .exe\par
+\pard\sa180\sl276\slmult1
+\par
+Si lo quieres resumir en una frase, seria esta:\par
+\pard\li360
+El proyecto Santamaria Noticias toma noticias reales de muchas fuentes, las limpia, las filtra, las ordena y las convierte en un producto usable.\par
+\pard\sa180\sl276\slmult1
+\par
+\b 16. Siguiente paso recomendado para aprenderlo bien\par
+\b0
+Si quieres dominar este proyecto sin saber mucho Python todavia, este es el mejor orden de estudio:\par
+\pard\li360
+1. Leer la lista \f1 FUENTES_RSS\f0.\par
+2. Entender \f1 _fetch_rss\f0.\par
+3. Entender \f1 _parsear_feed\f0.\par
+4. Entender \f1 _esta_bloqueado\f0.\par
+5. Entender \f1 buscar_noticias\f0.\par
+6. Entender \f1 GeneradorExcelIDEAS\f0.\par
+7. Entender \f1 app.py\f0.\par
+8. Al final estudiar \f1 ia_evergreen.py\f0.\par
+\pard\sa180\sl276\slmult1
+\par
+\b Cierre\par
+\b0
+Este documento fue hecho como guia base para que puedas entender el proyecto completo desde una mirada practica y sin tecnicismos innecesarios. Si quieres una segunda version, se puede hacer otra guia solo de la interfaz, solo del motor, o solo de la IA.\par
+}
