@@ -12,7 +12,7 @@ from pathlib import Path
 # ═══════════════════════════════════════════════════════════════
 
 # ── Cargar logo (ícono blindado) ───────────────────────────────
-_LOGO_PATH = Path(__file__).parent / "ícono blindado.png"
+_LOGO_PATH = Path(__file__).parent / "blindado_logo.png"
 def _logo_b64():
     with open(_LOGO_PATH, "rb") as f:
         return base64.b64encode(f.read()).decode()
