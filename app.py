@@ -4,14 +4,28 @@ import os
 import io
 import time
 import sys
+import base64
+from pathlib import Path
 
 # ═══════════════════════════════════════════════════════════════
 # CONFIGURACIÓN DE PÁGINA
 # ═══════════════════════════════════════════════════════════════
 
+# ── Cargar logo (ícono blindado) ───────────────────────────────
+_LOGO_PATH = Path(__file__).parent / "ícono blindado.png"
+def _logo_b64():
+    with open(_LOGO_PATH, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+try:
+    from PIL import Image as _PILImage
+    _pil_logo = _PILImage.open(_LOGO_PATH)
+except Exception:
+    _pil_logo = "🛡️"
+
 st.set_page_config(
     page_title="B.N.A.S 5.0 — Buscador Santamaria",
-    page_icon="📰",
+    page_icon=_pil_logo,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -361,13 +375,30 @@ button[data-testid="stBaseButton-primary"]:hover {
 # HEADER
 # ═══════════════════════════════════════════════════════════════
 
-st.markdown("""
-<div class="banner">
-    <div class="version">B.N.A.S 5.0</div>
-    <h1>🗞️ Buscador Santamaria de Noticias Inteligente</h1>
-    <div class="sub">Configure los parámetros de búsqueda para la extracción y análisis de datos de prensa global y local.</div>
-</div>
-""", unsafe_allow_html=True)
+try:
+    _b64_banner = _logo_b64()
+    st.markdown(f"""
+    <div class="banner">
+        <div style="display:flex; align-items:center; gap:18px;">
+            <img src="data:image/png;base64,{_b64_banner}"
+                 style="width:64px; height:64px; object-fit:contain; flex-shrink:0;
+                        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35));" />
+            <div>
+                <div class="version">B.N.A.S 5.0</div>
+                <h1 style="margin:4px 0 0;">Buscador Santamaria de Noticias Inteligente</h1>
+                <div class="sub">Configure los parámetros de búsqueda para la extracción y análisis de datos de prensa global y local.</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+except Exception:
+    st.markdown("""
+    <div class="banner">
+        <div class="version">B.N.A.S 5.0</div>
+        <h1>🛡️ Buscador Santamaria de Noticias Inteligente</h1>
+        <div class="sub">Configure los parámetros de búsqueda para la extracción y análisis de datos de prensa global y local.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("""
 <div class="badges">
@@ -383,13 +414,25 @@ st.markdown("""
 # ═══════════════════════════════════════════════════════════════
 
 with st.sidebar:
-    st.markdown("""
-    <div style="text-align:center; margin-bottom:20px;">
-        <div style="font-weight:800; font-size:1.1rem; color:#005931;">📰 B.N.A.S</div>
-        <div style="font-size:10px; font-weight:600; color:#6f7a70; letter-spacing:0.08em; 
-                    text-transform:uppercase; margin-top:3px;">Panel de Control</div>
-    </div>
-    """, unsafe_allow_html=True)
+    try:
+        _b64 = _logo_b64()
+        st.markdown(f"""
+        <div style="text-align:center; margin-bottom:20px;">
+            <img src="data:image/png;base64,{_b64}"
+                 style="width:80px; height:80px; object-fit:contain; margin-bottom:8px;" />
+            <div style="font-weight:800; font-size:1.1rem; color:#005931;">B.N.A.S</div>
+            <div style="font-size:10px; font-weight:600; color:#6f7a70; letter-spacing:0.08em;
+                        text-transform:uppercase; margin-top:3px;">Panel de Control</div>
+        </div>
+        """, unsafe_allow_html=True)
+    except Exception:
+        st.markdown("""
+        <div style="text-align:center; margin-bottom:20px;">
+            <div style="font-weight:800; font-size:1.1rem; color:#005931;">🛡️ B.N.A.S</div>
+            <div style="font-size:10px; font-weight:600; color:#6f7a70; letter-spacing:0.08em;
+                        text-transform:uppercase; margin-top:3px;">Panel de Control</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown('<div class="section-lbl">1 · Categorías de Búsqueda</div>', unsafe_allow_html=True)
 
