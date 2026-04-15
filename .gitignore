@@ -15,8 +15,7 @@ Noticias_Santamaria_*.xlsx
 .idea/
 *.swp
 
-# Parches y tests temporales
-parche*.py
+# Tests temporales
 diff*.txt
 test_*.py
 releases/
