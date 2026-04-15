@@ -69,10 +69,13 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 ZONA_COLOMBIA = timezone(timedelta(hours=-5))
 BASE_APP_DIR = os.path.dirname(os.path.abspath(sys.executable if getattr(sys, "frozen", False) else __file__))
 HISTORIAL_ARTICULOS_PATH = os.path.join(BASE_APP_DIR, "historial_articulos.json")
+HISTORIAL_MEDIOS_PROHIBIDOS_PATH = os.path.join(BASE_APP_DIR, "historial_medios_prohibidos.json")
 OLLAMA_SIMILITUD_CACHE_PATH = os.path.join(BASE_APP_DIR, "ollama_similitud_cache.json")
 MAX_HISTORIAL_ARTICULOS = 4000
-VENTANA_LISTA_NEGRA_DIAS = 7
-MAX_VALIDACIONES_OLLAMA_POR_BUSQUEDA = 4
+MAX_HISTORIAL_MEDIOS_PROHIBIDOS = 12000
+VENTANA_LISTA_NEGRA_DIAS = 120
+VENTANA_LISTA_NEGRA_DESCARGA_DIAS = 7
+MAX_VALIDACIONES_OLLAMA_POR_BUSQUEDA = 3
 OLLAMA_TIMEOUT_SEGUNDOS = 12
 CONTENIDO_PROFUNDO_MAX_CHARS = 1400
 
@@ -744,6 +747,41 @@ CATEGORIAS_RELACIONADAS = {
     "tecnologia": {"tecnologia", "tendencias"},
 }
 
+MARCADORES_COLOMBIA = (
+    "colombia", "colombiano", "colombiana", "colombianos", "colombianas",
+    "bogota", "medellin", "cali", "barranquilla", "cartagena", "bucaramanga",
+    "cucuta", "pereira", "manizales", "armenia", "ibague", "villavicencio",
+    "neiva", "pasto", "popayan", "monteria", "sincelejo", "riohacha",
+    "valledupar", "santa marta", "tunja", "soacha", "bello", "itagui",
+    "envigado", "rionegro", "apartado", "antioquia", "atlantico", "bolivar",
+    "boyaca", "caldas", "caqueta", "cauca", "cesar", "choco", "cordoba",
+    "cundinamarca", "guainia", "guaviare", "huila", "guajira", "magdalena",
+    "meta", "narino", "nariño", "norte de santander", "quindio", "quindío",
+    "risaralda", "san andres", "san andrés", "santander", "sucre", "tolima",
+    "valle del cauca", "vaupes", "vaupés", "vichada", "dian", "minsalud",
+    "mineducacion", "mineducación", "minvivienda", "mintrabajo", "mincit",
+    "minenergia", "minenergía", "fiscalia", "fiscalía", "procuraduria",
+    "procuraduría", "contraloria", "contraloría", "registraduria",
+    "registraduría", "superfinanciera", "banco de la republica",
+    "banco de la república", "casa de narino", "casa de nariño",
+    "alcaldia de bogota", "alcaldía de bogotá", "gobierno nacional",
+)
+
+MARCADORES_EXTRANJERO = (
+    "estados unidos", "ee uu", "ee. uu", "eeuu", "usa", "u s a",
+    "washington", "nueva york", "new york", "los angeles", "texas",
+    "peru", "perú", "ecuador", "mexico", "méxico", "argentina", "chile",
+    "brasil", "brasilia", "brazil", "venezuela", "panama", "panamá",
+    "uruguay", "paraguay", "bolivia", "españa", "espana", "francia",
+    "alemania", "italia", "reino unido", "londres", "china", "rusia",
+    "ucrania", "israel", "gaza", "canada", "canadá", "japon", "japón",
+)
+
+MARCADORES_FUENTE_LOCAL = {
+    "colombia", "bogota", "medellin", "medellín", "antioquia",
+    "barranquilla", "cali",
+}
+
 
 def _expandir_categorias_solicitadas(categorias):
     if not categorias:
@@ -836,6 +874,76 @@ CATEGORIA_REGLAS = {
 def _texto_categoria_norm(texto):
     texto = unicodedata.normalize("NFKD", texto or "").encode("ascii", "ignore").decode("ascii")
     return _normalizar_texto_medio(texto)
+
+
+def _contar_patrones_texto(texto, patrones):
+    return sum(1 for patron in patrones if _texto_contiene_patron(texto, patron))
+
+
+def _articulo_es_nacional_colombia(articulo, fuente):
+    texto = _texto_categoria_norm(
+        f"{articulo.get('titulo', '')} {articulo.get('resumen', '')} "
+        f"{articulo.get('url', '')} {articulo.get('fuente', '')}"
+    )
+    if not texto:
+        return False
+
+    score_colombia_texto = _contar_patrones_texto(texto, MARCADORES_COLOMBIA)
+    score_extranjero = _contar_patrones_texto(texto, MARCADORES_EXTRANJERO)
+
+    if score_colombia_texto == 0:
+        return False
+
+    score_colombia = score_colombia_texto
+
+    categorias_fuente = set(fuente.get("categorias", []))
+    if categorias_fuente.intersection(MARCADORES_FUENTE_LOCAL):
+        score_colombia += 1
+
+    fuente_norm = _texto_categoria_norm(fuente.get("nombre", ""))
+    if any(_texto_contiene_patron(fuente_norm, marcador) for marcador in MARCADORES_FUENTE_LOCAL):
+        score_colombia += 1
+
+    if score_extranjero >= 2 and score_colombia <= 1:
+        return False
+    if score_extranjero > score_colombia + 1:
+        return False
+    return True
+
+
+def _parece_ingles_filtro_internacional(titulo, descripcion):
+    texto = _normalizar_para_repeticion(f"{titulo} {descripcion}")
+    if len(texto) < 35:
+        return False
+
+    tokens = set(texto.split())
+    english_tokens = {
+        "the", "and", "with", "from", "after", "about", "officials",
+        "warn", "warns", "warning", "latest", "report", "reports",
+        "market", "markets", "global", "health", "social", "mental",
+        "risk", "risks", "said", "says", "outlook", "government",
+        "economy", "economic", "official", "officially", "city",
+    }
+    spanish_tokens = {
+        "el", "la", "los", "las", "de", "del", "y", "para", "con",
+        "por", "una", "uno", "unos", "unas", "salud", "riesgos",
+        "bogota", "colombia", "alcaldia", "gobierno", "mental",
+    }
+    hits_en = len(tokens.intersection(english_tokens))
+    hits_es = len(tokens.intersection(spanish_tokens))
+    return hits_en >= 3 and hits_es <= 1
+
+
+def _articulo_cumple_filtro_internacional(articulo):
+    return not (
+        _parece_ingles_puro(
+            articulo.get("titulo", ""),
+            articulo.get("resumen", ""),
+        ) or _parece_ingles_filtro_internacional(
+            articulo.get("titulo", ""),
+            articulo.get("resumen", ""),
+        )
+    )
 
 
 def _texto_contiene_patron(texto, patron):
@@ -1004,6 +1112,29 @@ def _extraer_frases_repeticion(titulo, url=""):
     return frases[:10]
 
 
+def _seleccionar_claves_repeticion(titulo, resumen_limpio, url, tokens_repeticion):
+    titulo_tokens = set(_extraer_tokens_repeticion(titulo))
+    slug_tokens = set(_tokens_repeticion_desde_url(url))
+    resumen_tokens = set(_extraer_tokens_repeticion(resumen_limpio))
+    tokens_base = set(tokens_repeticion or set())
+
+    score = {}
+    for token in tokens_base:
+        valor = len(token)
+        if token in titulo_tokens:
+            valor += 5
+        if token in slug_tokens:
+            valor += 4
+        if token in resumen_tokens:
+            valor += 2
+        if token in MARCADORES_COLOMBIA or token in MARCADORES_EXTRANJERO:
+            valor -= 2
+        score[token] = valor
+
+    claves = sorted(tokens_base, key=lambda t: (-score.get(t, 0), -len(t), t))
+    return claves[:12]
+
+
 def _construir_huella_repeticion(titulo, resumen, url=""):
     resumen_limpio = _limpiar_html(resumen) or titulo or ""
     titulo_norm = _normalizar_para_repeticion(titulo)[:180]
@@ -1012,7 +1143,9 @@ def _construir_huella_repeticion(titulo, resumen, url=""):
     slug_norm = " ".join(slug_tokens)[:180]
     texto_repeticion = f"{titulo_norm} {resumen_norm} {slug_norm}".strip()
     tokens_repeticion = _extraer_tokens_repeticion(f"{titulo} {resumen_limpio} {slug_norm}")
+    claves_repeticion = _seleccionar_claves_repeticion(titulo, resumen_limpio, url, tokens_repeticion)
     firma_tokens_repeticion = " ".join(sorted(tokens_repeticion))[:420]
+    firma_claves_repeticion = " ".join(claves_repeticion)[:240]
     frases_repeticion = _extraer_frases_repeticion(titulo, url)
     anclas = sorted(tokens_repeticion, key=lambda t: (-len(t), t))[:6]
     hash_repeticion = hashlib.sha1(texto_repeticion.encode("utf-8", errors="ignore")).hexdigest()
@@ -1020,8 +1153,10 @@ def _construir_huella_repeticion(titulo, resumen, url=""):
         "resumen_limpio": resumen_limpio,
         "texto_repeticion": texto_repeticion,
         "tokens_repeticion": tokens_repeticion,
+        "claves_repeticion": claves_repeticion,
         "slug_repeticion": slug_norm,
         "firma_tokens_repeticion": firma_tokens_repeticion,
+        "firma_claves_repeticion": firma_claves_repeticion,
         "frases_repeticion": frases_repeticion,
         "anclas_repeticion": anclas,
         "hash_repeticion": hash_repeticion,
@@ -1038,8 +1173,10 @@ def _registro_historial_desde_articulo(articulo):
         "texto_repeticion": articulo.get("texto_repeticion", ""),
         "hash_repeticion": articulo.get("hash_repeticion", ""),
         "tokens_repeticion": sorted(articulo.get("tokens_repeticion", set())),
+        "claves_repeticion": list(articulo.get("claves_repeticion", [])),
         "slug_repeticion": articulo.get("slug_repeticion", ""),
         "firma_tokens_repeticion": articulo.get("firma_tokens_repeticion", ""),
+        "firma_claves_repeticion": articulo.get("firma_claves_repeticion", ""),
         "frases_repeticion": list(articulo.get("frases_repeticion", [])),
         "anclas_repeticion": list(articulo.get("anclas_repeticion", [])),
     }
@@ -1058,6 +1195,29 @@ def _cargar_historial_articulos():
             if not isinstance(item, dict) or not item.get("hash_repeticion"):
                 continue
             item["tokens_repeticion"] = set(item.get("tokens_repeticion", []))
+            item["claves_repeticion"] = list(item.get("claves_repeticion", []))
+            item["frases_repeticion"] = list(item.get("frases_repeticion", []))
+            item["anclas_repeticion"] = list(item.get("anclas_repeticion", []))
+            historial.append(item)
+        return historial
+    except Exception:
+        return []
+
+
+def _cargar_historial_medios_prohibidos():
+    if not os.path.exists(HISTORIAL_MEDIOS_PROHIBIDOS_PATH):
+        return []
+    try:
+        with open(HISTORIAL_MEDIOS_PROHIBIDOS_PATH, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        if not isinstance(data, list):
+            return []
+        historial = []
+        for item in data:
+            if not isinstance(item, dict) or not item.get("hash_repeticion"):
+                continue
+            item["tokens_repeticion"] = set(item.get("tokens_repeticion", []))
+            item["claves_repeticion"] = list(item.get("claves_repeticion", []))
             item["frases_repeticion"] = list(item.get("frases_repeticion", []))
             item["anclas_repeticion"] = list(item.get("anclas_repeticion", []))
             historial.append(item)
@@ -1072,6 +1232,7 @@ def _guardar_historial_articulos(historial):
         for item in historial[-MAX_HISTORIAL_ARTICULOS:]:
             row = dict(item)
             row["tokens_repeticion"] = sorted(row.get("tokens_repeticion", set()))
+            row["claves_repeticion"] = list(row.get("claves_repeticion", []))
             row["frases_repeticion"] = list(row.get("frases_repeticion", []))
             row["anclas_repeticion"] = list(row.get("anclas_repeticion", []))
             serializable.append(row)
@@ -1081,10 +1242,29 @@ def _guardar_historial_articulos(historial):
         log.warning(f"No se pudo guardar historial de articulos: {exc}")
 
 
+def _guardar_historial_medios_prohibidos(historial):
+    try:
+        serializable = []
+        for item in historial[-MAX_HISTORIAL_MEDIOS_PROHIBIDOS:]:
+            row = dict(item)
+            row["tokens_repeticion"] = sorted(row.get("tokens_repeticion", set()))
+            row["claves_repeticion"] = list(row.get("claves_repeticion", []))
+            row["frases_repeticion"] = list(row.get("frases_repeticion", []))
+            row["anclas_repeticion"] = list(row.get("anclas_repeticion", []))
+            serializable.append(row)
+        with open(HISTORIAL_MEDIOS_PROHIBIDOS_PATH, "w", encoding="utf-8") as fh:
+            json.dump(serializable, fh, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        log.warning(f"No se pudo guardar historial de medios prohibidos: {exc}")
+
+
 def _agregar_articulo_a_indice(articulo, hashes, por_ancla):
     hash_rep = articulo.get("hash_repeticion", "")
     if hash_rep:
         hashes.add(hash_rep)
+    for clave in articulo.get("claves_repeticion", [])[:10]:
+        if clave and len(clave) >= 5:
+            por_ancla.setdefault(f"clave::{clave}", []).append(articulo)
     for ancla in articulo.get("anclas_repeticion", []):
         por_ancla.setdefault(ancla, []).append(articulo)
     for frase in articulo.get("frases_repeticion", [])[:6]:
@@ -1107,6 +1287,11 @@ def _indexar_historial_articulos(historial):
 def _obtener_candidatos_repeticion(articulo, por_ancla, max_candidatos=80):
     candidatos = {}
     claves_busqueda = list(articulo.get("anclas_repeticion", []))
+    claves_busqueda.extend(
+        f"clave::{clave}"
+        for clave in articulo.get("claves_repeticion", [])[:10]
+        if clave and len(clave) >= 5
+    )
     claves_busqueda.extend(frase for frase in articulo.get("frases_repeticion", [])[:6] if len(frase) >= 18)
     for ancla in claves_busqueda:
         for item in por_ancla.get(ancla, []):
@@ -1136,11 +1321,23 @@ def _metricas_similitud_articulos(articulo, referencia):
     if art_firma and ref_firma:
         firma_ratio = SequenceMatcher(None, art_firma, ref_firma).ratio()
 
+    art_firma_claves = articulo.get("firma_claves_repeticion", "")
+    ref_firma_claves = referencia.get("firma_claves_repeticion", "")
+    firma_claves_ratio = 0.0
+    if art_firma_claves and ref_firma_claves:
+        firma_claves_ratio = SequenceMatcher(None, art_firma_claves, ref_firma_claves).ratio()
+
     art_tokens = set(articulo.get("tokens_repeticion", set())) or set(articulo.get("tokens_relevantes", set()))
     ref_tokens = set(referencia.get("tokens_repeticion", set())) or set(referencia.get("tokens_relevantes", set()))
     inter = art_tokens.intersection(ref_tokens)
     union = art_tokens.union(ref_tokens)
     jaccard = (len(inter) / len(union)) if union else 0.0
+
+    art_claves = set(articulo.get("claves_repeticion", []))
+    ref_claves = set(referencia.get("claves_repeticion", []))
+    claves_inter = art_claves.intersection(ref_claves)
+    claves_union = art_claves.union(ref_claves)
+    claves_jaccard = (len(claves_inter) / len(claves_union)) if claves_union else 0.0
 
     art_frases = {
         frase for frase in articulo.get("frases_repeticion", [])
@@ -1160,9 +1357,12 @@ def _metricas_similitud_articulos(articulo, referencia):
         "titulo_ratio": titulo_ratio,
         "texto_ratio": texto_ratio,
         "firma_ratio": firma_ratio,
+        "firma_claves_ratio": firma_claves_ratio,
         "inter": inter,
         "union": union,
         "jaccard": jaccard,
+        "claves_inter": claves_inter,
+        "claves_jaccard": claves_jaccard,
         "frases_comunes": frases_comunes,
         "slug_inter": slug_inter,
     }
@@ -1178,8 +1378,11 @@ def _es_articulo_muy_parecido(articulo, referencia):
     titulo_ratio = metricas["titulo_ratio"]
     texto_ratio = metricas["texto_ratio"]
     firma_ratio = metricas["firma_ratio"]
+    firma_claves_ratio = metricas["firma_claves_ratio"]
     inter = metricas["inter"]
     jaccard = metricas["jaccard"]
+    claves_inter = metricas["claves_inter"]
+    claves_jaccard = metricas["claves_jaccard"]
     frases_comunes = metricas["frases_comunes"]
     slug_inter = metricas["slug_inter"]
 
@@ -1197,6 +1400,10 @@ def _es_articulo_muy_parecido(articulo, referencia):
         return True
     if len(slug_inter) >= 5 and len(inter) >= 5:
         return True
+    if len(claves_inter) >= 4:
+        return True
+    if len(claves_inter) >= 3 and (firma_claves_ratio >= 0.62 or claves_jaccard >= 0.34):
+        return True
     if titulo_ratio >= 0.88 and texto_ratio >= 0.84 and len(inter) >= 4:
         return True
     if len(inter) >= 7 and jaccard >= 0.30:
@@ -1207,7 +1414,31 @@ def _es_articulo_muy_parecido(articulo, referencia):
         return True
     if len(inter) >= 6 and titulo_ratio >= 0.55 and firma_ratio >= 0.58:
         return True
+    if len(inter) >= 5 and titulo_ratio >= 0.45 and (firma_ratio >= 0.48 or firma_claves_ratio >= 0.58):
+        return True
 
+    return False
+
+
+def _es_coincidencia_prohibida_extrema(articulo, referencia):
+    metricas = _metricas_similitud_articulos(articulo, referencia)
+    inter = metricas["inter"]
+    claves_inter = metricas["claves_inter"]
+
+    if len(claves_inter) >= 3 and len(inter) >= 4:
+        return True
+    if len(claves_inter) >= 2 and len(metricas["slug_inter"]) >= 3:
+        return True
+    if len(inter) >= 5 and metricas["jaccard"] >= 0.20:
+        return True
+    if len(inter) >= 4 and metricas["firma_ratio"] >= 0.46:
+        return True
+    if len(inter) >= 4 and metricas["firma_claves_ratio"] >= 0.52:
+        return True
+    if len(metricas["frases_comunes"]) >= 1 and len(inter) >= 3:
+        return True
+    if len(inter) >= 6:
+        return True
     return False
 
 
@@ -1215,6 +1446,8 @@ def _es_caso_borde_repeticion(articulo, referencia):
     metricas = _metricas_similitud_articulos(articulo, referencia)
     inter = metricas["inter"]
     if metricas["frases_comunes"]:
+        return True
+    if len(metricas["claves_inter"]) >= 2:
         return True
     if len(metricas["slug_inter"]) >= 4 and len(inter) >= 4:
         return True
@@ -1870,10 +2103,18 @@ def _cargar_lista_negra_medios(fecha_inicio=None, fecha_fin=None, verbose=True):
     LISTA_NEGRA_MEDIOS_HASHES = set()
     LISTA_NEGRA_MEDIOS_POR_ANCLA = {}
 
+    historial_medios = _cargar_historial_medios_prohibidos()
+    if historial_medios:
+        LISTA_NEGRA_MEDIOS.extend(historial_medios)
+
     fecha_ref = fecha_fin or fecha_inicio or _fecha_a_date_colombia(datetime.now(timezone.utc))
     fecha_negra_fin = fecha_fin or fecha_ref
     fecha_negra_inicio = fecha_inicio or fecha_ref
     fecha_negra_inicio = min(fecha_negra_inicio, fecha_negra_fin) - timedelta(days=VENTANA_LISTA_NEGRA_DIAS)
+    fecha_descarga_inicio = max(
+        fecha_negra_inicio,
+        fecha_negra_fin - timedelta(days=VENTANA_LISTA_NEGRA_DESCARGA_DIAS),
+    )
 
     fuentes_lista_negra = []
     for cfg in MEDIOS_PROHIBIDOS.values():
@@ -1886,7 +2127,7 @@ def _cargar_lista_negra_medios(fecha_inicio=None, fecha_fin=None, verbose=True):
 
     with ThreadPoolExecutor(max_workers=min(3, len(fuentes_lista_negra))) as executor:
         futuro_a_fuente = {
-            executor.submit(_fetch_fuente, f, fecha_negra_inicio, fecha_negra_fin): f
+            executor.submit(_fetch_fuente, f, fecha_descarga_inicio, fecha_negra_fin): f
             for f in fuentes_lista_negra
         }
         for futuro in as_completed(futuro_a_fuente):
@@ -1898,9 +2139,22 @@ def _cargar_lista_negra_medios(fecha_inicio=None, fecha_fin=None, verbose=True):
                 LISTA_NEGRA_MEDIOS.extend(articulos)
 
     LISTA_NEGRA_MEDIOS_HASHES, LISTA_NEGRA_MEDIOS_POR_ANCLA = _indexar_articulos_repeticion(LISTA_NEGRA_MEDIOS)
+    if LISTA_NEGRA_MEDIOS:
+        historial_actualizado = []
+        hashes_historial = set()
+        for item in LISTA_NEGRA_MEDIOS:
+            hash_rep = item.get("hash_repeticion", "")
+            if not hash_rep or hash_rep in hashes_historial:
+                continue
+            historial_actualizado.append(_registro_historial_desde_articulo(item))
+            hashes_historial.add(hash_rep)
+        _guardar_historial_medios_prohibidos(historial_actualizado)
 
     if verbose:
-        log.info(f"  [✓] {len(LISTA_NEGRA_MEDIOS)} noticias en lista negra de medios bloqueados.")
+        log.info(
+            f"  [✓] {len(LISTA_NEGRA_MEDIOS)} noticias en lista negra de medios bloqueados "
+            f"(memoria {VENTANA_LISTA_NEGRA_DIAS}d / descarga {VENTANA_LISTA_NEGRA_DESCARGA_DIAS}d)."
+        )
 
 
 def _es_coincidencia_lista_negra(articulo, lista_negra_hashes, lista_negra_por_ancla):
@@ -1908,12 +2162,16 @@ def _es_coincidencia_lista_negra(articulo, lista_negra_hashes, lista_negra_por_a
         articulo,
         lista_negra_hashes,
         lista_negra_por_ancla,
-        max_candidatos=40,
+        max_candidatos=90,
     ):
         return True
 
-    candidatos = _obtener_candidatos_repeticion(articulo, lista_negra_por_ancla, max_candidatos=12)
-    for referencia in candidatos[:4]:
+    candidatos = _obtener_candidatos_repeticion(articulo, lista_negra_por_ancla, max_candidatos=28)
+    for referencia in candidatos[:12]:
+        if _es_coincidencia_prohibida_extrema(articulo, referencia):
+            return True
+
+    for referencia in candidatos[:8]:
         if not _es_caso_borde_repeticion(articulo, referencia):
             continue
         if _dictamen_ollama_mismo_tema(articulo, referencia):
@@ -2095,6 +2353,11 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
         if fecha_inicio and fecha_fin:
             articulos = [a for a in articulos if fecha_inicio <= a["fecha_date"] <= fecha_fin]
 
+        if tipo_noticias == "nacional":
+            articulos = [a for a in articulos if _articulo_es_nacional_colombia(a, fuente)]
+        elif tipo_noticias == "internacional":
+            articulos = [a for a in articulos if _articulo_cumple_filtro_internacional(a)]
+
         articulos_filtrados_categoria = []
         for art in articulos:
             if cats_filtrado_set:
@@ -2137,7 +2400,7 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
                 ):
                     continue
 
-            if art.get("categoria") != "TENDENCIAS" and _es_coincidencia_lista_negra(
+            if _es_coincidencia_lista_negra(
                 art,
                 LISTA_NEGRA_MEDIOS_HASHES,
                 LISTA_NEGRA_MEDIOS_POR_ANCLA,
