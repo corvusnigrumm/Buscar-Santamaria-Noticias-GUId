@@ -1642,15 +1642,23 @@ def _dictamen_ollama_mismo_tema(articulo, referencia):
 
 
 def _medio_prohibido_por_texto(url="", titulo="", descripcion="", fuente_rss=""):
-    netloc = _normalize_domain(url)
+    destinos_google = _extraer_destinos_google_news(url)
+    netlocs = [_normalize_domain(url)]
+    for destino in destinos_google:
+        netloc_destino = _normalize_domain(destino)
+        if netloc_destino and netloc_destino not in netlocs:
+            netlocs.append(netloc_destino)
+
+    netloc = netlocs[0] if netlocs else ""
     fuente_norm = _normalizar_texto_medio(fuente_rss)
     titulo_lower = (titulo or "").lower().strip()
-    texto_norm = _normalizar_texto_medio(f"{titulo} {descripcion} {fuente_rss}")
+    texto_norm = _normalizar_texto_medio(f"{titulo} {descripcion} {fuente_rss} {' '.join(destinos_google)}")
     separadores = (" - ", " — ", " | ", " – ", " :: ")
+    es_msn = any("msn.com" in nl for nl in netlocs)
 
     for medio_key, cfg in MEDIOS_PROHIBIDOS.items():
         for dominio in cfg["dominios"]:
-            if netloc == dominio or netloc.endswith(f".{dominio}"):
+            if any(nl == dominio or nl.endswith(f".{dominio}") for nl in netlocs if nl):
                 return medio_key, f"Dominio bloqueado: {dominio}"
 
         for alias in cfg["source_aliases"]:
@@ -1666,6 +1674,22 @@ def _medio_prohibido_por_texto(url="", titulo="", descripcion="", fuente_rss="")
             firma_norm = _normalizar_texto_medio(firma)
             if firma_norm and firma_norm in texto_norm:
                 return medio_key, f"Firma especÃ­fica: '{cfg['label']}'"
+
+        if es_msn:
+            for alias in [cfg["label"], *cfg["source_aliases"], *cfg["title_aliases"]]:
+                alias_norm = _normalizar_texto_medio(alias)
+                if not alias_norm:
+                    continue
+                patrones_msn = (
+                    f"publicado por {alias_norm}",
+                    f"por {alias_norm}",
+                    f"de {alias_norm}",
+                    f"fuente {alias_norm}",
+                    f"{alias_norm} en msn",
+                    f"msn {alias_norm}",
+                )
+                if any(patron in texto_norm for patron in patrones_msn):
+                    return medio_key, f"MSN sindicado de {cfg['label']}"
 
     return None, ""
 
@@ -1736,13 +1760,69 @@ def _es_fecha_confiable(dt):
     return (ahora - timedelta(days=730)) <= dt <= (ahora + timedelta(hours=2))
 
 
+def _a_zona_colombia(dt):
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(ZONA_COLOMBIA)
+
+
 def _fecha_a_date_colombia(dt):
-    return (dt + timedelta(hours=-5)).date()
+    dt_col = _a_zona_colombia(dt)
+    return dt_col.date() if dt_col else None
 
 
 def _fecha_display(dt):
-    dt_col = dt + timedelta(hours=-5)
-    return dt_col.strftime("%Y-%m-%d %H:%M")
+    dt_col = _a_zona_colombia(dt)
+    return dt_col.strftime("%Y-%m-%d %H:%M") if dt_col else ""
+
+
+def _decodificar_payload_google_news(url):
+    if not url:
+        return ""
+    url_lower = url.lower()
+    if "news.google.com/rss/articles/" not in url_lower:
+        return ""
+    try:
+        b64_part = url.split("articles/")[-1].split("?")[0]
+        b64_part += "=" * ((4 - len(b64_part) % 4) % 4)
+        payload = base64.urlsafe_b64decode(b64_part).decode("utf-8", errors="ignore")
+        payload = urllib.parse.unquote(payload)
+        return re.sub(r"[\x00-\x1f\x7f]+", " ", payload).strip()
+    except Exception:
+        return ""
+
+
+def _extraer_destinos_google_news(url):
+    payload = _decodificar_payload_google_news(url)
+    if not payload:
+        return []
+    destinos = []
+    for match in re.finditer(r"https?://[^\s\"'<>]+", payload, re.IGNORECASE):
+        candidato = match.group(0).rstrip(").,;")
+        if candidato not in destinos:
+            destinos.append(candidato)
+    return destinos
+
+
+def _extraer_fecha_desde_url(url):
+    if not url:
+        return None
+    patrones = [
+        r"/(20\d{2})/(0[1-9]|1[0-2])/([0-2]\d|3[01])(?:/|$)",
+        r"[-_/](20\d{2})[-_/](0[1-9]|1[0-2])[-_/]([0-2]\d|3[01])(?:[-_/]|$)",
+    ]
+    for patron in patrones:
+        match = re.search(patron, url)
+        if not match:
+            continue
+        try:
+            y, m, d = map(int, match.groups())
+            return date(y, m, d)
+        except ValueError:
+            continue
+    return None
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -2001,6 +2081,23 @@ def _parsear_feed(xml_str, nombre_fuente):
         fecha_dt = _parsear_fecha_rss(fecha_str)
         if not _es_fecha_confiable(fecha_dt):
             continue
+
+        fecha_url = None
+        for candidata in _extraer_destinos_google_news(url) or [url]:
+            fecha_url = _extraer_fecha_desde_url(candidata)
+            if fecha_url:
+                break
+        if fecha_url and _fecha_a_date_colombia(fecha_dt) != fecha_url:
+            fecha_dt_url = datetime(
+                fecha_url.year,
+                fecha_url.month,
+                fecha_url.day,
+                12,
+                0,
+                tzinfo=ZONA_COLOMBIA,
+            ).astimezone(timezone.utc)
+            if _es_fecha_confiable(fecha_dt_url):
+                fecha_dt = fecha_dt_url
 
         # FIX 2: Filtro de idioma mejorado (mucho más permisivo con español legítimo)
         if _parece_ingles_puro(titulo, descripcion):
