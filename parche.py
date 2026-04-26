@@ -101,7 +101,7 @@ FUENTES_RSS = [
 
     {"nombre": "El Heraldo",
      "url": "https://www.elheraldo.co/arc/outboundfeeds/rss/",
-     "categorias": ["general", "barranquilla", "judicial", "politica", "deportes", "economia", "cultura", "salud", "tecnologia", "internacional"],
+     "categorias": ["general", "barranquilla", "judicial", "politica", "deportes", "economia", "cultura", "salud", "tecnologia", "mundo"],
      "tipo": "nacional"},
 
     {"nombre": "El Colombiano — Medellín",
@@ -119,9 +119,9 @@ FUENTES_RSS = [
     {"nombre": "El Colombiano — Deportes",
      "url": "https://www.elcolombiano.com/rss/deportes.xml",
      "categorias": ["deportes"], "tipo": "nacional"},
-    {"nombre": "El Colombiano — Internacional",
-     "url": "https://www.elcolombiano.com/rss/internacional.xml",
-     "categorias": ["internacional"], "tipo": "nacional"},
+    {"nombre": "El Colombiano — mundo",
+     "url": "https://www.elcolombiano.com/rss/mundo.xml",
+     "categorias": ["mundo"], "tipo": "nacional"},
     {"nombre": "El Colombiano — Cultura",
      "url": "https://www.elcolombiano.com/rss/cultura.xml",
      "categorias": ["cultura"], "tipo": "nacional"},
@@ -150,7 +150,7 @@ FUENTES_RSS = [
 
     {"nombre": "Semana",
      "url": "https://www.semana.com/rss/",
-     "categorias": ["general", "politica", "economia", "cultura", "deportes", "tecnologia", "salud", "internacional", "judicial", "justicia", "vida", "virales"],
+     "categorias": ["general", "politica", "economia", "cultura", "deportes", "tecnologia", "salud", "mundo", "judicial", "justicia", "vida", "virales"],
      "tipo": "nacional"},
 
     {"nombre": "La FM — Actualidad",
@@ -277,136 +277,136 @@ FUENTES_RSS = [
     # (se cubre más abajo con Google News)
 
     # ──────────────────────────────────────────────────────────────
-    #  NUEVAS FUENTES — ORGANISMOS INTERNACIONALES (solicitadas)
+    #  NUEVAS FUENTES — ORGANISMOS mundoES (solicitadas)
     # ──────────────────────────────────────────────────────────────
 
     # NEW: FMI en español
     {"nombre": "FMI — Artículos",
      "url": "https://www.imf.org/es/news/rss",
-     "categorias": ["economia", "internacional", "finanzas"], "tipo": "internacional"},
+     "categorias": ["economia", "mundo", "finanzas"], "tipo": "mundo"},
 
     # NEW: Banco Mundial noticias LAC
     {"nombre": "Banco Mundial — LAC",
      "url": "https://feeds.worldbank.org/world-bank/rss/press-releases/es",
-     "categorias": ["economia", "internacional"], "tipo": "internacional"},
+     "categorias": ["economia", "mundo"], "tipo": "mundo"},
 
     # NEW: BID
     {"nombre": "BID — Mejorando Vidas",
      "url": "https://blogs.iadb.org/feed/",
-     "categorias": ["economia", "internacional"], "tipo": "internacional"},
+     "categorias": ["economia", "mundo"], "tipo": "mundo"},
 
     # ══════════════════════════════════════════════════════════════
-    #  FUENTES INTERNACIONALES — ORIGINALES
+    #  FUENTES mundoES — ORIGINALES
     # ══════════════════════════════════════════════════════════════
 
     {"nombre": "Bloomberg Línea",
      "url": "https://www.bloomberglinea.com/arc/outboundfeeds/rss/?outputType=xml",
-     "categorias": ["internacional"], "tipo": "internacional"},
+     "categorias": ["mundo"], "tipo": "mundo"},
 
     {"nombre": "BBC Mundo",
      "url": "https://feeds.bbci.co.uk/mundo/rss.xml",
-     "categorias": ["general", "internacional", "politica", "cultura", "tecnologia", "deportes", "salud", "vida"],
-     "tipo": "internacional"},
+     "categorias": ["general", "mundo", "politica", "cultura", "tecnologia", "deportes", "salud", "vida"],
+     "tipo": "mundo"},
 
     {"nombre": "DW Español",
      "url": "https://rss.dw.com/xml/rss-es-all",
-     "categorias": ["general", "internacional", "politica", "cultura", "tecnologia", "vida"],
-     "tipo": "internacional"},
+     "categorias": ["general", "mundo", "politica", "cultura", "tecnologia", "vida"],
+     "tipo": "mundo"},
 
     {"nombre": "France 24 Español",
      "url": "https://www.france24.com/es/rss",
-     "categorias": ["general", "internacional", "politica"], "tipo": "internacional"},
+     "categorias": ["general", "mundo", "politica"], "tipo": "mundo"},
 
     {"nombre": "CNN Español",
      "url": "https://cnnespanol.cnn.com/feed/",
-     "categorias": ["general", "internacional", "politica", "tecnologia", "deportes", "salud", "vida"],
-     "tipo": "internacional"},
+     "categorias": ["general", "mundo", "politica", "tecnologia", "deportes", "salud", "vida"],
+     "tipo": "mundo"},
 
     {"nombre": "EFE",
      "url": "https://www.efe.com/efe/rss",
-     "categorias": ["general", "internacional"], "tipo": "internacional"},
+     "categorias": ["general", "mundo"], "tipo": "mundo"},
 
     {"nombre": "Europa Press",
      "url": "https://www.europapress.es/rss/rss.aspx",
-     "categorias": ["general", "internacional", "virales"], "tipo": "internacional"},
+     "categorias": ["general", "mundo", "virales"], "tipo": "mundo"},
 
     {"nombre": "Newsweek",
      "url": "https://www.newsweek.com/rss",
-     "categorias": ["general", "internacional", "tecnologia"], "tipo": "internacional"},
+     "categorias": ["general", "mundo", "tecnologia"], "tipo": "mundo"},
 
     {"nombre": "NPR",
      "url": "https://feeds.npr.org/1001/rss.xml",
-     "categorias": ["general", "internacional"], "tipo": "internacional"},
+     "categorias": ["general", "mundo"], "tipo": "mundo"},
 
     {"nombre": "The Guardian World",
      "url": "https://www.theguardian.com/world/rss",
-     "categorias": ["internacional"], "tipo": "internacional"},
+     "categorias": ["mundo"], "tipo": "mundo"},
 
     {"nombre": "NY Times World",
      "url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-     "categorias": ["internacional"], "tipo": "internacional"},
+     "categorias": ["mundo"], "tipo": "mundo"},
 
     {"nombre": "El País América",
      "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
-     "categorias": ["general", "internacional", "politica", "cultura"],
-     "tipo": "internacional"},
+     "categorias": ["general", "mundo", "politica", "cultura"],
+     "tipo": "mundo"},
 
     {"nombre": "RPP Perú",
      "url": "https://rpp.pe/feed",
-     "categorias": ["general", "internacional"], "tipo": "internacional"},
+     "categorias": ["general", "mundo"], "tipo": "mundo"},
 
     {"nombre": "La Tercera",
      "url": "https://www.latercera.com/feed/",
-     "categorias": ["general", "internacional"], "tipo": "internacional"},
+     "categorias": ["general", "mundo"], "tipo": "mundo"},
 
     {"nombre": "20 Minutos",
      "url": "https://www.20minutos.es/rss/",
-     "categorias": ["general", "internacional", "cultura", "virales"],
-     "tipo": "internacional"},
+     "categorias": ["general", "mundo", "cultura", "virales"],
+     "tipo": "mundo"},
 
     {"nombre": "HuffPost",
      "url": "https://www.huffpost.com/section/world-news/feed",
-     "categorias": ["general", "internacional"], "tipo": "internacional"},
+     "categorias": ["general", "mundo"], "tipo": "mundo"},
 
     {"nombre": "ESPN Deportes",
      "url": "https://espndeportes.espn.com/espn/rss/news",
-     "categorias": ["deportes"], "tipo": "internacional"},
+     "categorias": ["deportes"], "tipo": "mundo"},
 
     {"nombre": "Mundo Deportivo",
      "url": "https://www.mundodeportivo.com/rss/",
-     "categorias": ["deportes"], "tipo": "internacional"},
+     "categorias": ["deportes"], "tipo": "mundo"},
 
     {"nombre": "Rolling Stone",
      "url": "https://www.rollingstone.com/feed/",
-     "categorias": ["cultura"], "tipo": "internacional"},
+     "categorias": ["cultura"], "tipo": "mundo"},
 
     {"nombre": "Billboard",
      "url": "https://www.billboard.com/feed/",
-     "categorias": ["cultura"], "tipo": "internacional"},
+     "categorias": ["cultura"], "tipo": "mundo"},
 
     {"nombre": "Muy Interesante",
      "url": "https://www.muyinteresante.es/feed/",
-     "categorias": ["vida", "salud", "tecnologia"], "tipo": "internacional"},
+     "categorias": ["vida", "salud", "tecnologia"], "tipo": "mundo"},
 
     {"nombre": "National Geographic LA",
      "url": "https://www.nationalgeographicla.com/feed",
-     "categorias": ["vida", "cultura"], "tipo": "internacional"},
+     "categorias": ["vida", "cultura"], "tipo": "mundo"},
 
     {"nombre": "Digital Trends Español",
      "url": "https://es.digitaltrends.com/feed/",
-     "categorias": ["tecnologia"], "tipo": "internacional"},
+     "categorias": ["tecnologia"], "tipo": "mundo"},
 
     {"nombre": "Andro4all",
      "url": "https://andro4all.com/feed",
-     "categorias": ["tecnologia"], "tipo": "internacional"},
+     "categorias": ["tecnologia"], "tipo": "mundo"},
 
     {"nombre": "Car and Driver",
      "url": "https://www.caranddriver.com/es/rss/",
-     "categorias": ["motor"], "tipo": "internacional"},
+     "categorias": ["motor"], "tipo": "mundo"},
 
     {"nombre": "Autobild",
      "url": "https://www.autobild.es/rss/",
-     "categorias": ["motor"], "tipo": "internacional"},
+     "categorias": ["motor"], "tipo": "mundo"},
 
     # ══════════════════════════════════════════════════════════════
     #  GOOGLE NEWS — CATEGORÍAS GENERALES (Colombia)
@@ -497,17 +497,17 @@ FUENTES_RSS = [
     # NEW: FMI / Colombia (vía GNews también)
     {"nombre": "Google News — FMI Colombia",
      "url": "https://news.google.com/rss/search?q=fmi+colombia+economia+perspectivas&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["economia", "internacional"], "tipo": "nacional"},
+     "categorias": ["economia", "mundo"], "tipo": "nacional"},
 
     # NEW: Banco Mundial Colombia
     {"nombre": "Google News — Banco Mundial Colombia",
      "url": "https://news.google.com/rss/search?q=%22banco+mundial%22+colombia+informe&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["economia", "internacional"], "tipo": "nacional"},
+     "categorias": ["economia", "mundo"], "tipo": "nacional"},
 
     # NEW: BID Colombia
     {"nombre": "Google News — BID Colombia",
      "url": "https://news.google.com/rss/search?q=%22banco+interamericano%22+bid+colombia&hl=es-419&gl=CO&ceid=CO:es-419",
-     "categorias": ["economia", "internacional"], "tipo": "nacional"},
+     "categorias": ["economia", "mundo"], "tipo": "nacional"},
 
     # NEW: La Nota Económica (vía GNews — por si el RSS falla)
     {"nombre": "Google News — La Nota Econ.",
@@ -528,6 +528,35 @@ FUENTES_RSS = [
     {"nombre": "Google News — CCB",
      "url": "https://news.google.com/rss/search?q=%22camara+de+comercio%22+bogota+empresa&hl=es-419&gl=CO&ceid=CO:es-419",
      "categorias": ["economia", "negocios"], "tipo": "nacional"},
+
+    # NEW: Fuentes adicionales (Mundo, Tendencias, Colombia, Motor, etc.)
+    {"nombre": "Google News — BBC Mundo",
+     "url": "https://news.google.com/rss/search?q=site:bbc.com/mundo&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["mundo", "general"], "tipo": "mundo"},
+
+    {"nombre": "Google News — Caracol TV Tendencias",
+     "url": "https://news.google.com/rss/search?q=site:caracoltv.com/actualidad+tendencias&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["tendencias"], "tipo": "nacional"},
+
+    {"nombre": "Google News — Desarrollo Económico",
+     "url": "https://news.google.com/rss/search?q=site:desarrolloeconomico.gov.co+economia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["economia"], "tipo": "nacional"},
+
+    {"nombre": "Google News — RCN Radio Colombia",
+     "url": "https://news.google.com/rss/search?q=site:rcnradio.com/colombia&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["colombia"], "tipo": "nacional"},
+
+    {"nombre": "Google News — El Espectador Motor",
+     "url": "https://news.google.com/rss/search?q=site:elespectador.com/autos&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["motor"], "tipo": "nacional"},
+
+    {"nombre": "Google News — Marca US Mundo",
+     "url": "https://news.google.com/rss/search?q=site:us.marca.com/actualidad&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["mundo"], "tipo": "mundo"},
+
+    {"nombre": "Google News — Infobae Tendencias",
+     "url": "https://news.google.com/rss/search?q=site:infobae.com/tendencias&hl=es-419&gl=CO&ceid=CO:es-419",
+     "categorias": ["tendencias"], "tipo": "nacional"},
 ]
 
 # ═══════════════════════════════════════════════════════════════
@@ -589,6 +618,7 @@ if len(DOMINIOS_PERMITIDOS) < 10:
         "minenergia.gov.co", "mincit.gov.co", "minvivienda.gov.co",
         "iadb.org", "bancomundial.org", "imf.org",
         "tuinterfaz.mx", "paat.mx",
+        "caracoltv.com", "desarrolloeconomico.gov.co", "rcnradio.com", "us.marca.com",
     ]
     for d in _dominios_extra:
         DOMINIOS_PERMITIDOS.add(d)
@@ -847,7 +877,7 @@ def _parsear_feed(xml_str, nombre_fuente):
 
     FIX 2: El filtro de idioma inglés ' the '/' of '/' is ' fue ELIMINADO.
     Era la causa principal de que Infobae, Forbes y El Heraldo no aparecieran:
-    sus artículos sobre marcas internacionales, Netflix, Apple, FMI, etc.
+    sus artículos sobre marcas mundoes, Netflix, Apple, FMI, etc.
     contenían estas palabras y se descartaban silenciosamente.
 
     Ahora se usa _parece_ingles_puro() que requiere ≥4 marcadores Y ausencia
@@ -924,7 +954,7 @@ def _parsear_feed(xml_str, nombre_fuente):
 
 CATEGORIAS_DISPONIBLES = [
     "general", "economia", "politica", "deportes", "tecnologia",
-    "cultura", "judicial", "justicia", "internacional", "salud",
+    "cultura", "judicial", "justicia", "mundo", "salud",
     "tendencias", "negocios", "finanzas", "colombia",
     "motor", "vida", "virales", "bogota", "mis finanzas",
 ]
@@ -969,7 +999,7 @@ def _fetch_fuente(fuente, fecha_inicio, fecha_fin):
 
 
 def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=None,
-                    max_por_fuente=50, max_total=1000, verbose=True,
+                    max_por_fuente=10, max_total=1000, verbose=True,
                     tipo_noticias="ambas", filtrar_argentina=True):
     if categorias_seleccionadas:
         cats_lower = set(c.lower() for c in categorias_seleccionadas)
@@ -1098,6 +1128,7 @@ def buscar_noticias(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=
             log.info(f"    ✓ {len(nuevos)} artículos con fecha verificada")
 
     todas.sort(key=lambda a: a["fecha_dt"], reverse=True)
+    todas.sort(key=lambda a: 0 if a.get("categoria") == "TENDENCIAS" else (1 if a.get("categoria") == "ECONOMIA" else 2))
     resultado = todas[:max_total]
 
     notificacion = None
@@ -1284,9 +1315,11 @@ class GeneradorExcelIDEAS:
 # ═══════════════════════════════════════════════════════════════
 
 def _siguiente_nombre_tabla():
+    carpeta = os.path.join(BASE_APP_DIR, "Noticias")
+    os.makedirs(carpeta, exist_ok=True)
     n = 1
     while True:
-        nombre = f"TABLA DE NOTICIAS {n}.xlsx"
+        nombre = os.path.join(carpeta, f"TABLA DE NOTICIAS {n}.xlsx")
         if not os.path.exists(nombre):
             return nombre
         n += 1
@@ -1294,7 +1327,7 @@ def _siguiente_nombre_tabla():
 
 CATEGORIAS_GUI = [
     "General", "Economía", "Política", "Deportes", "Tecnología",
-    "Cultura", "Judicial", "Internacional", "Salud", "Tendencias",
+    "Cultura", "Judicial", "Mundo", "Salud", "Tendencias",
     "Negocios", "Finanzas", "Colombia",
     "Motor", "Vida", "Virales", "Bogotá", "Mis Finanzas",
 ]
@@ -1307,7 +1340,7 @@ MAPA_CATEGORIAS = {
     "Tecnología": ["tecnologia"],
     "Cultura": ["cultura"],
     "Judicial": ["judicial", "justicia"],
-    "Internacional": ["internacional"],
+    "Mundo": ["mundo"],
     "Salud": ["salud"],
     "Tendencias": ["tendencias"],
     "Negocios": ["negocios"],
@@ -1595,7 +1628,7 @@ class AppNoticiasIDEAS(ctk.CTk):
         fr_scope.pack(fill="x", ipady=3)
         self._tipo_noticias = "ambas"
         self.seg_tipo = ctk.CTkSegmentedButton(
-            fr_scope, values=["Nacional", "Internacional", "Ambas"],
+            fr_scope, values=["Nacional", "mundo", "Ambas"],
             command=self._on_tipo_change,
             font=ctk.CTkFont(family=font_family, size=13, weight="bold"),
             selected_color="#005931", selected_hover_color="#217346",
@@ -1636,7 +1669,7 @@ class AppNoticiasIDEAS(ctk.CTk):
         self.consola.pack(fill="both", expand=True, padx=2, pady=(0, 2))
 
     def _on_tipo_change(self, valor):
-        mapa = {"Nacional": "nacional", "Internacional": "internacional", "Ambas": "ambas"}
+        mapa = {"Nacional": "nacional", "mundo": "mundo", "Ambas": "ambas"}
         self._tipo_noticias = mapa.get(valor, "ambas")
 
     def _marcar(self, estado):
@@ -1708,7 +1741,7 @@ class AppNoticiasIDEAS(ctk.CTk):
 
             tipo_display = {
                 "nacional": "🇨🇴 Nacional",
-                "internacional": "🌍 Internacional",
+                "mundo": "🌍 mundo",
                 "ambas": "🌐 Ambas"
             }.get(tipo_noticias, tipo_noticias)
 

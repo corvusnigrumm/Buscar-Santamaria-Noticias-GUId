@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 ╔══════════════════════════════════════════════════════════════════════╗
-║   BUSCADOR SANTAMARIA DE NOTICIAS INTELIGENTE — V4 (PARCHE)         ║
-║   BUGS CORREGIDOS:                                                   ║
+║   BUSCADOR SANTAMARIA DE NOTICIAS INTELIGENTE — V4 (PARCHE)          ║
+║   BUGS CORREGIDOS, NOTAS PARA MI:                                    ║
 ║   BUG 1: Whitelist bloqueaba TODAS las URLs de Google News           ║
 ║          (news.google.com no estaba en DOMINIOS_PERMITIDOS)          ║
 ║   BUG 2: Filtro de inglés " the "/" of "/" is " bloqueaba            ║
@@ -12,7 +12,7 @@
 ║          múltiples fuentes legítimas colombianas                     ║
 ║   NEW 5: Desplazamiento de fechas: selección [ini, fin]              ║
 ║          → búsqueda en [fin, fin+(fin-ini)] (período siguiente)      ║
-║   NEW 6: 25+ nuevas fuentes (ministerios, FMI, BM, BID,             ║
+║   NEW 6: 25+ nuevas fuentes (ministerios, FMI, BM, BID,              ║
 ║          La Nota Económica, Raddar, finanzas personales, etc.)       ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """
@@ -290,11 +290,6 @@ FUENTES_RSS = [
     # NEW: Banco Mundial noticias LAC
     {"nombre": "Banco Mundial — LAC",
      "url": "https://feeds.worldbank.org/world-bank/rss/press-releases/es",
-     "categorias": ["economia", "internacional"], "tipo": "internacional"},
-
-    # NEW: BID
-    {"nombre": "BID — Mejorando Vidas",
-     "url": "https://blogs.iadb.org/feed/",
      "categorias": ["economia", "internacional"], "tipo": "internacional"},
 
     # ══════════════════════════════════════════════════════════════
@@ -1255,9 +1250,11 @@ class GeneradorExcelIDEAS:
 # ═══════════════════════════════════════════════════════════════
 
 def _siguiente_nombre_tabla():
+    carpeta = os.path.join(BASE_APP_DIR, "Noticias")
+    os.makedirs(carpeta, exist_ok=True)
     n = 1
     while True:
-        nombre = f"TABLA DE NOTICIAS {n}.xlsx"
+        nombre = os.path.join(carpeta, f"TABLA DE NOTICIAS {n}.xlsx")
         if not os.path.exists(nombre):
             return nombre
         n += 1

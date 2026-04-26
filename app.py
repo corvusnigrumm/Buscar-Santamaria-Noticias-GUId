@@ -462,12 +462,12 @@ with st.sidebar:
     st.markdown('<div class="section-lbl">2 · Tipo de Noticias</div>', unsafe_allow_html=True)
     tipo_opcion = st.radio(
         "Tipo de noticias:",
-        ["🌐 Ambas", "🇨🇴 Nacional", "🌍 Internacional"],
+        ["🌐 Ambas", "🇨🇴 Nacional", "🌍 Mundo"],
         index=0,
         horizontal=True,
         label_visibility="collapsed"
     )
-    mapa_tipo = {"🌐 Ambas": "ambas", "🇨🇴 Nacional": "nacional", "🌍 Internacional": "internacional"}
+    mapa_tipo = {"🌐 Ambas": "ambas", "🇨🇴 Nacional": "nacional", "🌍 Mundo": "mundo"}
     tipo_noticias = mapa_tipo.get(tipo_opcion, "ambas")
 
     st.markdown("")
