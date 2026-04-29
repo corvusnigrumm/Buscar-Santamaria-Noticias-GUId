@@ -1969,29 +1969,25 @@ def _siguiente_nombre_tabla():
 
 
 CATEGORIAS_GUI = [
-    "General", "Economía", "Política", "Deportes", "Tecnología",
-    "Cultura", "Judicial", "Mundo", "Salud", "Tendencias",
-    "Negocios", "Finanzas", "Colombia",
-    "Motor", "Vida", "Virales", "Bogotá", "Mis Finanzas",
+    "Tendencias", "Finanzas", "Economía", "General", "Política",
+    "Deportes", "Tecnología", "Cultura", "Mundo", "Salud",
+    "Negocios", "Colombia", "Vida", "Bogotá", "Mis Finanzas",
 ]
 
 MAPA_CATEGORIAS = {
-    "General": ["general"],
+    "Tendencias": ["tendencias"],
+    "Finanzas": ["finanzas"],
     "Economía": ["economia"],
+    "General": ["general"],
     "Política": ["politica"],
     "Deportes": ["deportes"],
     "Tecnología": ["tecnologia"],
     "Cultura": ["cultura"],
-    "Judicial": ["judicial", "justicia"],
     "Mundo": ["mundo"],
     "Salud": ["salud"],
-    "Tendencias": ["tendencias"],
     "Negocios": ["negocios"],
-    "Finanzas": ["finanzas"],
     "Colombia": ["colombia"],
-    "Motor": ["motor"],
     "Vida": ["vida"],
-    "Virales": ["virales"],
     "Bogotá": ["bogota"],
     "Mis Finanzas": ["mis finanzas"],
 }
