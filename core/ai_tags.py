@@ -3,7 +3,7 @@ import json
 import asyncio
 import hashlib
 import time
-from util.logger import log
+from core.logger import log
 from core.filters import DATA_APP_DIR
 
 CACHE_FILE = os.path.join(DATA_APP_DIR, "ai_tags_cache.json")
