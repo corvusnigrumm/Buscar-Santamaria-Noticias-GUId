@@ -1,11 +1,14 @@
+# GUI libs son opcionales (no existen en Streamlit Cloud / Linux)
 try:
     import customtkinter as ctk
-except ImportError:
+    import tkinter as tk
+    GUI_AVAILABLE = True
+except (ImportError, OSError):
     ctk = None
-import tkinter as tk
+    tk = None
+    GUI_AVAILABLE = False
 import threading
 from queue import Queue
-GUI_AVAILABLE = False
 import html
 import os
 import json
