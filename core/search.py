@@ -9,7 +9,7 @@ from core.config import (
     ZONA_COLOMBIA
 )
 from core.scraper import fetch_fuente_async
-from core.gemini_tags import GeminiTagService
+from core.ai_tags import GeminiTagService
 from core.filters import (
     _fecha_a_date_colombia, _es_razon_medio_prohibido, _esta_bloqueado,
     _articulo_es_nacional_colombia, _articulo_cumple_filtro_mundo,

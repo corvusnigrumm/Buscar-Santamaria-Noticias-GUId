@@ -410,7 +410,7 @@ st.markdown("""
     <div class="badge">✓ Fechas 100% reales</div>
     <div class="badge">✓ Artículos sin fecha descartados</div>
     <div class="badge">✓ Filtro de dominios corporativos</div>
-    <div class="badge">🤖 Tags IA con Gemini</div>
+    <div class="badge">🤖 Tags IA con Groq</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -481,17 +481,18 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown('<div class="section-lbl">4 · Inteligencia Artificial</div>', unsafe_allow_html=True)
-    usar_gemini = st.checkbox("🤖 Enriquecer con Gemini AI (Tags + Score)", value=False,
-                              help="Usa Gemini para extraer tags SEO y puntaje de tendencia por artículo.")
+    usar_gemini = st.checkbox("🤖 Enriquecer con Groq AI (Tags + Score)", value=False,
+                              help="Usa Groq (Llama 3) para extraer tags SEO y puntaje de tendencia por artículo.")
     
-    # Debug UI: Mostrar si Gemini está realmente inicializado o no
-    try:
-        from core.gemini_tags import GeminiTagService
-        _svc = GeminiTagService()
-        if usar_gemini and not _svc.disponible:
-            st.error("⚠️ La IA está desactivada. Revisa los Logs de Streamlit Cloud (Settings -> Secrets) o instala 'google-genai'.")
-    except Exception as e:
-        st.error(f"⚠️ Error cargando motor IA: {e}")
+    # Debug UI: Mostrar si Groq está realmente inicializado o no
+    if usar_gemini:
+        try:
+            from core.ai_tags import GeminiTagService
+            _svc = GeminiTagService()
+            if not _svc.disponible:
+                st.error("⚠️ La IA está desactivada. Revisa que exista GROQ_API_KEY en Streamlit Cloud (Settings -> Secrets) o instala 'groq'.")
+        except Exception as e:
+            st.error(f"⚠️ Error cargando motor IA: {e}")
 
     st.markdown("---")
     st.markdown('<div class="section-lbl">3 · Filtros de Fecha</div>', unsafe_allow_html=True)
@@ -623,7 +624,7 @@ if 'resultado_busqueda' in st.session_state:
                 <div><span class="tg">[DONE]</span> Búsqueda completada exitosamente</div>
                 <div><span class="tc">[TIME]</span> Tiempo: <span class="ty">{dt:.1f}s</span></div>
                 <div><span class="tc">[DATA]</span> Artículos únicos: <span class="tg">{len(noticias)}</span></div>
-                <div><span class="tg">[AI]</span> Gemini Tags: <span class="ty">{'\u2713 Activo' if resultado.get('gemini_usado') else '\u2717 No usado'}</span></div>
+                <div><span class="tg">[AI]</span> Groq Tags: <span class="ty">{'\u2713 Activo' if resultado.get('gemini_usado') else '\u2717 No usado'}</span></div>
                 <div class="td">──────────────────────────────────────</div>
                 <div><span class="tg">[XLSX]</span> Excel generado y listo para descarga</div>
             </div>
@@ -664,7 +665,7 @@ if 'resultado_busqueda' in st.session_state:
                 "Título": art.get("titulo", ""),
                 "URL": art.get("url", ""),
             }
-            # Agregar columnas de Gemini si están disponibles
+            # Agregar columnas de Groq si están disponibles
             if art.get("tags"):
                 row_data["Tags"] = ", ".join(art["tags"])
                 row_data["Score"] = art.get("trend_score", 0)
