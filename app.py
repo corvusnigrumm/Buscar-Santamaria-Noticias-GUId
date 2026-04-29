@@ -481,7 +481,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown('<div class="section-lbl">4 · Inteligencia Artificial</div>', unsafe_allow_html=True)
-    usar_gemini = st.checkbox("🤖 Enriquecer con Gemini AI (Tags + Score)", value=True,
+    usar_gemini = st.checkbox("🤖 Enriquecer con Gemini AI (Tags + Score)", value=False,
                               help="Usa Gemini para extraer tags SEO y puntaje de tendencia por artículo.")
     
     # Debug UI: Mostrar si Gemini está realmente inicializado o no
