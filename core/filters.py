@@ -20,6 +20,39 @@ import urllib.parse
 from core.config import *
 from core.config import _normalize_domain
 from difflib import SequenceMatcher
+import sys
+from core.logger import logger as log
+
+# ═══════════════════════════════════════════════════════════════
+# CONSTANTES DE DATOS Y RUTAS
+# ═══════════════════════════════════════════════════════════════
+BASE_APP_DIR = os.path.dirname(os.path.abspath(
+    sys.executable if getattr(sys, "frozen", False) else
+    os.path.dirname(__file__)
+))
+
+def _resolver_directorio_datos():
+    env_dir = os.environ.get("BUSCADOR_NOTICIAS_DATA_DIR")
+    if env_dir:
+        d = os.path.abspath(env_dir)
+        os.makedirs(d, exist_ok=True)
+        return d
+    # En modo frozen, buscar carpeta data/ junto al .exe
+    if getattr(sys, "frozen", False):
+        d = os.path.join(BASE_APP_DIR, "data")
+        os.makedirs(d, exist_ok=True)
+        return d
+    # En modo script, junto al proyecto
+    d = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+    os.makedirs(d, exist_ok=True)
+    return d
+
+DATA_APP_DIR = _resolver_directorio_datos()
+
+HISTORIAL_ARTICULOS_PATH = os.path.join(DATA_APP_DIR, "historial_articulos.json")
+HISTORIAL_MEDIOS_PROHIBIDOS_PATH = os.path.join(DATA_APP_DIR, "historial_medios_prohibidos.json")
+MAX_HISTORIAL_ARTICULOS = 4000
+MAX_HISTORIAL_MEDIOS_PROHIBIDOS = 12000
 
 def _expandir_categorias_solicitadas(categorias):
     if not categorias:
