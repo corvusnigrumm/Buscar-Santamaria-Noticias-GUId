@@ -595,7 +595,10 @@ if 'resultado_busqueda' in st.session_state:
     st.markdown("---")
 
     if not noticias:
-        st.error(resultado.get("notificacion", "No se encontraron noticias con esos filtros."))
+        msg = resultado.get("notificacion")
+        if not msg:
+            msg = "No se encontraron nuevas noticias. (Posiblemente ya fueron descargadas y están en el historial, o fueron descartadas por los filtros)."
+        st.error(msg)
     else:
         # ── Terminal de éxito ───────────────────────────────
         st.markdown(f"""
