@@ -483,6 +483,15 @@ with st.sidebar:
     st.markdown('<div class="section-lbl">4 · Inteligencia Artificial</div>', unsafe_allow_html=True)
     usar_gemini = st.checkbox("🤖 Enriquecer con Gemini AI (Tags + Score)", value=True,
                               help="Usa Gemini para extraer tags SEO y puntaje de tendencia por artículo.")
+    
+    # Debug UI: Mostrar si Gemini está realmente inicializado o no
+    try:
+        from core.gemini_tags import GeminiTagService
+        _svc = GeminiTagService()
+        if usar_gemini and not _svc.disponible:
+            st.error("⚠️ La IA está desactivada. Revisa los Logs de Streamlit Cloud (Settings -> Secrets) o instala 'google-genai'.")
+    except Exception as e:
+        st.error(f"⚠️ Error cargando motor IA: {e}")
 
     st.markdown("---")
     st.markdown('<div class="section-lbl">3 · Filtros de Fecha</div>', unsafe_allow_html=True)
