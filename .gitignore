@@ -22,3 +22,7 @@ releases/
 
 # Filtro legacy
 filtro_fuentes_bloqueadas.py
+
+# Secrets y datos locales
+.env
+data/

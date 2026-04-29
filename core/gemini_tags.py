@@ -49,6 +49,14 @@ class GeminiTagService:
         self.client = None
         self._disponible = False
 
+        # Intentar leer desde Streamlit secrets (para Streamlit Cloud)
+        if not self.api_key:
+            try:
+                import streamlit as st
+                self.api_key = st.secrets.get("GEMINI_API_KEY", "")
+            except Exception:
+                pass
+
         if not self.api_key:
             log.warning("[Gemini] No se encontró GEMINI_API_KEY. Tags deshabilitados.")
             return

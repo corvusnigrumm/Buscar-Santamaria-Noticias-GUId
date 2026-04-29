@@ -6,6 +6,8 @@ import time
 import sys
 import base64
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # ═══════════════════════════════════════════════════════════════
 # CONFIGURACIÓN DE PÁGINA
