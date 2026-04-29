@@ -53,9 +53,10 @@ class GeminiTagService:
         if not self.api_key:
             try:
                 import streamlit as st
-                self.api_key = st.secrets.get("GEMINI_API_KEY", "")
-            except Exception:
-                pass
+                if "GEMINI_API_KEY" in st.secrets:
+                    self.api_key = st.secrets["GEMINI_API_KEY"]
+            except Exception as e:
+                log.warning(f"No se pudieron leer Streamlit secrets: {e}")
 
         if not self.api_key:
             log.warning("[Gemini] No se encontró GEMINI_API_KEY. Tags deshabilitados.")
@@ -118,7 +119,7 @@ Formato exacto:
         try:
             response = await asyncio.to_thread(
                 self.client.models.generate_content,
-                model="gemini-2.0-flash",
+                model="gemini-1.5-flash",
                 contents=prompt,
             )
 
