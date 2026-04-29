@@ -119,7 +119,7 @@ Formato exacto:
         try:
             response = await asyncio.to_thread(
                 self.client.models.generate_content,
-                model="gemini-1.5-flash",
+                model="gemini-2.0-flash-lite",
                 contents=prompt,
             )
 
