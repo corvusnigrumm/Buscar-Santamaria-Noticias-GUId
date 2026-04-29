@@ -72,10 +72,14 @@ DOMINIOS_BLOQUEADOS = [
 
 MEDIOS_PROHIBIDOS = {
     "el_tiempo": {
+        "label": "El Tiempo",
+        "lista_negra_url": "https://www.eltiempo.com/rss",
         "dominios": ["eltiempo.com", "m.eltiempo.com", "amp.eltiempo.com"],
         "signatures": ["casa editorial el tiempo", "el tiempo play"],
     },
     "portafolio": {
+        "label": "Portafolio",
+        "lista_negra_url": "https://www.portafolio.co/rss",
         "dominios": ["portafolio.co", "blogs.portafolio.co"],
         "signatures": ["portafolio digital", "suscribete a portafolio"],
     }
