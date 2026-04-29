@@ -9,6 +9,7 @@ from core.config import (
     ZONA_COLOMBIA
 )
 from core.scraper import fetch_fuente_async
+from core.gemini_tags import GeminiTagService
 from core.filters import (
     _fecha_a_date_colombia, _es_razon_medio_prohibido, _esta_bloqueado,
     _articulo_es_nacional_colombia, _articulo_cumple_filtro_mundo,
@@ -89,7 +90,8 @@ async def _cargar_lista_negra_medios_async(session, fecha_inicio=None, fecha_fin
 
 async def buscar_noticias_async(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=None,
                     max_por_fuente=10, max_total=1000, verbose=True,
-                    tipo_noticias="ambas", filtrar_argentina=True):
+                    tipo_noticias="ambas", filtrar_argentina=True,
+                    usar_gemini=True):
 
     if categorias_seleccionadas:
         cats_ordenadas = [c.lower() for c in categorias_seleccionadas]
@@ -115,7 +117,7 @@ async def buscar_noticias_async(categorias_seleccionadas=None, fecha_inicio=None
     if verbose:
         log.info("")
         log.info("=" * 60)
-        log.info("  BUSCADOR DE NOTICIAS CAPA BRINDADA - ASYNC ENGINE")
+        log.info("  BUSCADOR SANTAMARIA 8.0 — ASYNC ENGINE + GEMINI AI")
         log.info("=" * 60)
 
     async with aiohttp.ClientSession() as session:
@@ -237,6 +239,19 @@ async def buscar_noticias_async(categorias_seleccionadas=None, fecha_inicio=None
         todas.sort(key=lambda a: 0 if a.get("categoria") == "TENDENCIAS" else (1 if a.get("categoria") == "ECONOMIA" else 2))
         resultado = todas[:max_total]
 
+        # ── Enriquecimiento con Gemini AI ───────────────────
+        gemini_usado = False
+        if usar_gemini and resultado:
+            gemini = GeminiTagService()
+            if gemini.disponible:
+                if verbose:
+                    log.info("")
+                    log.info("  🤖 Enriqueciendo artículos con Gemini AI...")
+                resultado = await gemini.generar_tags_batch(resultado)
+                gemini_usado = True
+            elif verbose:
+                log.info("  [SKIP] Gemini AI no disponible (sin API key).")
+
         if resultado:
             historial_actualizado = historial_articulos[:]
             hashes_historial = set(historial_hashes)
@@ -255,4 +270,5 @@ async def buscar_noticias_async(categorias_seleccionadas=None, fecha_inicio=None
             "fuentes_fallidas": fuentes_fallidas,
             "conteo_fuentes": conteo_fuentes,
             "notificacion": None,
+            "gemini_usado": gemini_usado,
         }

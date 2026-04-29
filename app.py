@@ -24,7 +24,7 @@ except Exception:
     _pil_logo = "🛡️"
 
 st.set_page_config(
-    page_title="B.N.A.S 5.0 — Buscador Santamaria",
+    page_title="Buscador Santamaria 8.0",
     page_icon=_pil_logo,
     layout="wide",
     initial_sidebar_state="expanded"
@@ -387,8 +387,8 @@ try:
                  style="width:64px; height:64px; object-fit:contain; flex-shrink:0;
                         filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35));" />
             <div>
-                <div class="version">B.N.A.S 5.0</div>
-                <h1 style="margin:4px 0 0;">Buscador Santamaria de Noticias Inteligente</h1>
+                <div class="version">B.N.A.S 8.0</div>
+                <h1 style="margin:4px 0 0;">Buscador Santamaria 8.0 — Motor de Noticias con IA</h1>
                 <div class="sub">Configure los parámetros de búsqueda para la extracción y análisis de datos de prensa global y local.</div>
             </div>
         </div>
@@ -397,8 +397,8 @@ try:
 except Exception:
     st.markdown("""
     <div class="banner">
-        <div class="version">B.N.A.S 5.0</div>
-        <h1>🛡️ Buscador Santamaria de Noticias Inteligente</h1>
+        <div class="version">B.N.A.S 8.0</div>
+        <h1>🛡️ Buscador Santamaria 8.0 — Motor de Noticias con IA</h1>
         <div class="sub">Configure los parámetros de búsqueda para la extracción y análisis de datos de prensa global y local.</div>
     </div>
     """, unsafe_allow_html=True)
@@ -408,6 +408,7 @@ st.markdown("""
     <div class="badge">✓ Fechas 100% reales</div>
     <div class="badge">✓ Artículos sin fecha descartados</div>
     <div class="badge">✓ Filtro de dominios corporativos</div>
+    <div class="badge">🤖 Tags IA con Gemini</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -423,7 +424,7 @@ with st.sidebar:
         <div style="text-align:center; margin-bottom:20px;">
             <img src="data:image/png;base64,{_b64}"
                  style="width:80px; height:80px; object-fit:contain; margin-bottom:8px;" />
-            <div style="font-weight:800; font-size:1.1rem; color:#005931;">B.N.A.S</div>
+            <div style="font-weight:800; font-size:1.1rem; color:#005931;">B.N.A.S 8.0</div>
             <div style="font-size:10px; font-weight:600; color:#6f7a70; letter-spacing:0.08em;
                         text-transform:uppercase; margin-top:3px;">Panel de Control</div>
         </div>
@@ -431,7 +432,7 @@ with st.sidebar:
     except Exception:
         st.markdown("""
         <div style="text-align:center; margin-bottom:20px;">
-            <div style="font-weight:800; font-size:1.1rem; color:#005931;">🛡️ B.N.A.S</div>
+            <div style="font-weight:800; font-size:1.1rem; color:#005931;">🛡️ B.N.A.S 8.0</div>
             <div style="font-size:10px; font-weight:600; color:#6f7a70; letter-spacing:0.08em;
                         text-transform:uppercase; margin-top:3px;">Panel de Control</div>
         </div>
@@ -475,6 +476,11 @@ with st.sidebar:
 
     st.markdown("")
     filtrar_argentina = st.checkbox("🇦🇷 Filtrar noticias de Argentina", value=True)
+
+    st.markdown("---")
+    st.markdown('<div class="section-lbl">4 · Inteligencia Artificial</div>', unsafe_allow_html=True)
+    usar_gemini = st.checkbox("🤖 Enriquecer con Gemini AI (Tags + Score)", value=True,
+                              help="Usa Gemini para extraer tags SEO y puntaje de tendencia por artículo.")
 
     st.markdown("---")
     st.markdown('<div class="section-lbl">3 · Filtros de Fecha</div>', unsafe_allow_html=True)
@@ -530,7 +536,7 @@ with col_aside:
             <div class="term-title">Terminal de Proceso</div>
         </div>
         <div class="term-body">
-            <div><span class="tg">[READY]</span> Motor B.N.A.S v5.0 inicializado</div>
+            <div><span class="tg">[READY]</span> Motor B.N.A.S v8.0 inicializado</div>
             <div><span class="tb">[SYNC]</span> Fuentes RSS configuradas ... OK</div>
             <div><span class="tb">[SYNC]</span> Whitelist de dominios cargada ... OK</div>
             <div class="td">──────────────────────────────────────</div>
@@ -566,6 +572,7 @@ with col_main:
                         verbose=False,
                         tipo_noticias=tipo_noticias,
                         filtrar_argentina=filtrar_argentina,
+                        usar_gemini=usar_gemini,
                     ))
                     dt = time.time() - t0
                     resultado['tiempo_ejecucion'] = dt
@@ -599,6 +606,7 @@ if 'resultado_busqueda' in st.session_state:
                 <div><span class="tg">[DONE]</span> Búsqueda completada exitosamente</div>
                 <div><span class="tc">[TIME]</span> Tiempo: <span class="ty">{dt:.1f}s</span></div>
                 <div><span class="tc">[DATA]</span> Artículos únicos: <span class="tg">{len(noticias)}</span></div>
+                <div><span class="tg">[AI]</span> Gemini Tags: <span class="ty">{'\u2713 Activo' if resultado.get('gemini_usado') else '\u2717 No usado'}</span></div>
                 <div class="td">──────────────────────────────────────</div>
                 <div><span class="tg">[XLSX]</span> Excel generado y listo para descarga</div>
             </div>
@@ -632,13 +640,18 @@ if 'resultado_busqueda' in st.session_state:
 
         tabla_preview = []
         for art in noticias:
-            tabla_preview.append({
+            row_data = {
                 "Fecha": art.get("fecha_str", ""),
                 "Categoría": art.get("categoria", ""),
                 "Fuente": art.get("fuente", ""),
                 "Título": art.get("titulo", ""),
-                "URL": art.get("url", "")
-            })
+                "URL": art.get("url", ""),
+            }
+            # Agregar columnas de Gemini si están disponibles
+            if art.get("tags"):
+                row_data["Tags"] = ", ".join(art["tags"])
+                row_data["Score"] = art.get("trend_score", 0)
+            tabla_preview.append(row_data)
 
         st.dataframe(tabla_preview, use_container_width=True, height=400)
 

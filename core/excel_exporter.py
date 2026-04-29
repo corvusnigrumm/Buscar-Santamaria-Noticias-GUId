@@ -92,7 +92,7 @@ class GeneradorExcelIDEAS:
 
     def _hoja_datos(self, ws, articulos):
         headers = [("FUENTE","FF4444"),("TÍTULO","FFD700"),("RESUMEN CORTO","00CC66"),
-                   ("URL","00CCCC"),("FECHA","FF66FF")]
+                   ("URL","00CCCC"),("FECHA","FF66FF"),("TAGS","4488FF"),("SCORE","88CC00")]
         for ci, (h, c) in enumerate(headers, 1):
             cell = ws.cell(row=1, column=ci, value=h)
             cell.font = Font(name=self.FONT_NAME, bold=True, size=10, color=c)
@@ -109,6 +109,15 @@ class GeneradorExcelIDEAS:
         al = Alignment(vertical='center', wrap_text=True)
         fp = PatternFill(start_color=self.GRIS_CLARO, end_color=self.GRIS_CLARO, fill_type='solid')
         fi = PatternFill(start_color=self.BLANCO, end_color=self.BLANCO, fill_type='solid')
+
+        # Fills condicionales para el score de tendencia
+        fill_alto = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type='solid')   # verde claro
+        fill_medio = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type='solid')   # amarillo
+        fill_bajo = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type='solid')    # rojo claro
+        font_alto = Font(name=self.FONT_NAME, size=10, bold=True, color="006100")
+        font_medio = Font(name=self.FONT_NAME, size=10, bold=True, color="9C6500")
+        font_bajo = Font(name=self.FONT_NAME, size=10, bold=True, color="9C0006")
+
         arts = sorted(articulos,
                       key=lambda a: a.get("fecha_dt") or datetime.min.replace(tzinfo=timezone.utc),
                       reverse=True)
@@ -134,12 +143,36 @@ class GeneradorExcelIDEAS:
             c.font = fn
             c.alignment = Alignment(horizontal='center', vertical='center')
             c.fill = fill; c.border = borde
+
+            # ── TAGS (columna F) ──
+            tags = art.get("tags", [])
+            tags_str = ", ".join(tags) if tags else ""
+            c = ws.cell(row=row, column=6, value=tags_str)
+            c.font = Font(name=self.FONT_NAME, size=8, italic=True, color="2255AA")
+            c.alignment = al; c.fill = fill; c.border = borde
+
+            # ── SCORE (columna G) con color condicional ──
+            score = art.get("trend_score", 0)
+            c = ws.cell(row=row, column=7, value=score)
+            c.alignment = Alignment(horizontal='center', vertical='center')
+            c.border = borde
+            if score >= 80:
+                c.fill = fill_alto; c.font = font_alto
+            elif score >= 50:
+                c.fill = fill_medio; c.font = font_medio
+            else:
+                c.fill = fill_bajo; c.font = font_bajo
+
             ws.row_dimensions[row].height = 22
+
         ws.column_dimensions['A'].width = 22
         ws.column_dimensions['B'].width = 55
         ws.column_dimensions['C'].width = 45
         ws.column_dimensions['D'].width = 50
         ws.column_dimensions['E'].width = 18
+        ws.column_dimensions['F'].width = 35
+        ws.column_dimensions['G'].width = 10
         uf = len(arts) + 1
-        if uf > 1: ws.auto_filter.ref = f"A1:E{uf}"
+        if uf > 1: ws.auto_filter.ref = f"A1:G{uf}"
         ws.freeze_panes = "A2"
+

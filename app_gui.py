@@ -134,7 +134,7 @@ class AppNoticiasIDEAS(ctk.CTk):
     def __init__(self):
         super().__init__()
         ctk.set_appearance_mode("Light")
-        self.title("Buscador de Noticias CAPA BRINDADA V.6")
+        self.title("Buscador Santamaria 8.0")
         self.geometry("1200x870")
         self.minsize(1100, 750)
         self.configure(fg_color="#f8f9fa")
@@ -155,7 +155,7 @@ class AppNoticiasIDEAS(ctk.CTk):
         self.mostrar_bienvenida()
 
     def mostrar_bienvenida(self):
-        print("[READY] System kernel initialized. Core v6.0 — CAPA BRINDADA")
+        print("[READY] System kernel initialized. Core v8.0 — Buscador Santamaria")
         print("[SYNC] Connected to RSS/News XML Feeds ... OK")
         print("[SYNC] Local node 'Colombia-Main' active.")
         print("--------------------------------------------------")
@@ -178,7 +178,7 @@ class AppNoticiasIDEAS(ctk.CTk):
         font_family = "Helvetica"
         header_fr = ctk.CTkFrame(self, fg_color="transparent")
         header_fr.pack(fill="x", padx=30, pady=(25, 10))
-        ctk.CTkLabel(header_fr, text="Buscador de Noticias CAPA BRINDADA V.6",
+        ctk.CTkLabel(header_fr, text="Buscador Santamaria 8.0",
                      font=ctk.CTkFont(family=font_family, size=28, weight="bold"),
                      text_color="#191c1d").pack(anchor="w")
         ctk.CTkLabel(header_fr,
