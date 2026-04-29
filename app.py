@@ -489,9 +489,12 @@ with st.sidebar:
 
     usar_fecha = st.checkbox("📅 Filtrar por rango de fechas", value=True)
     if usar_fecha:
+        import pytz
+        bogota_tz = pytz.timezone('America/Bogota')
+        fecha_actual = datetime.datetime.now(bogota_tz).date()
         fecha_valores = st.date_input(
             "Rango de fechas",
-            value=(datetime.date.today(), datetime.date.today()),
+            value=(fecha_actual, fecha_actual),
             label_visibility="collapsed"
         )
         if isinstance(fecha_valores, tuple) and len(fecha_valores) == 2:
