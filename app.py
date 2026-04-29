@@ -32,9 +32,12 @@ st.set_page_config(
 
 # ── Importar el motor principal ─────────────────────────────────
 try:
-    from buscador_noticias import buscar_noticias, GeneradorExcelIDEAS, CATEGORIAS_GUI, MAPA_CATEGORIAS, FUENTES_RSS
-except ImportError:
-    st.error("No se encuentra el motor `buscador_noticias.py`. Asegúrate de que esté en el mismo directorio.")
+    from core.search import buscar_noticias_async
+    from core.excel_exporter import GeneradorExcelIDEAS
+    from core.filters import CATEGORIAS_GUI, MAPA_CATEGORIAS
+    from core.config import FUENTES_RSS
+except ImportError as e:
+    st.error(f"Error cargando los módulos de core/: {e}")
     st.stop()
 
 
@@ -555,14 +558,15 @@ with col_main:
                 sys.stdout = io.StringIO()
                 try:
                     t0 = time.time()
-                    resultado = buscar_noticias(
+                    import asyncio
+                    resultado = asyncio.run(buscar_noticias_async(
                         categorias_seleccionadas=cats_internas_list,
                         fecha_inicio=fecha_inicio,
                         fecha_fin=fecha_fin,
                         verbose=False,
                         tipo_noticias=tipo_noticias,
                         filtrar_argentina=filtrar_argentina,
-                    )
+                    ))
                     dt = time.time() - t0
                     resultado['tiempo_ejecucion'] = dt
                     st.session_state['resultado_busqueda'] = resultado
