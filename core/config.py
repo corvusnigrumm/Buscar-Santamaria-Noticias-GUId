@@ -23,6 +23,8 @@ FUENTES_RSS = [
     {"nombre": "Verne — El País", "url": "https://verne.elpais.com/feed/", "categorias": ["tendencias", "vida", "cultura"], "tipo": "mundo"},
     {"nombre": "Muy Interesante", "url": "https://www.muyinteresante.es/feed", "categorias": ["tendencias", "tecnologia", "salud"], "tipo": "mundo"},
     {"nombre": "Google News — Tendencias", "url": "https://news.google.com/rss/search?q=tendencias+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias"], "tipo": "nacional"},
+    {"nombre": "Google News — Evergreen Colombia", "url": "https://news.google.com/rss/search?q=(como+OR+guia+OR+consejos+OR+tips)+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias", "vida", "tecnologia"], "tipo": "nacional"},
+    {"nombre": "Google News — Ideas Evergreen", "url": "https://news.google.com/rss/search?q=(que+es+OR+para+que+sirve+OR+errores+comunes)+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias", "vida", "salud", "tecnologia"], "tipo": "nacional"},
 
     # ── FINANZAS (prioridad alta) ───────────────────────────────
     {"nombre": "La República", "url": "https://www.larepublica.co/rss/", "categorias": ["economia", "negocios", "finanzas"], "tipo": "nacional"},
@@ -32,6 +34,7 @@ FUENTES_RSS = [
     {"nombre": "Mis Finanzas Personales", "url": "https://misfinanzaspersonales.co/feed/", "categorias": ["finanzas", "mis finanzas", "economia"], "tipo": "nacional"},
     {"nombre": "Bloomberg Línea", "url": "https://www.bloomberglinea.com/feed/", "categorias": ["finanzas", "economia", "negocios", "mundo"], "tipo": "mundo"},
     {"nombre": "Google News — Finanzas CO", "url": "https://news.google.com/rss/search?q=finanzas+personales+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["finanzas", "mis finanzas"], "tipo": "nacional"},
+    {"nombre": "Google News — Ahorro y Bolsillo", "url": "https://news.google.com/rss/search?q=(ahorro+OR+presupuesto+OR+tarjeta+de+credito+OR+subsidio)+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["finanzas", "mis finanzas"], "tipo": "nacional"},
 
     # ── ECONOMÍA ────────────────────────────────────────────────
     {"nombre": "El Colombiano — Negocios", "url": "https://www.elcolombiano.com/rss/negocios.xml", "categorias": ["economia", "negocios"], "tipo": "nacional"},
@@ -48,6 +51,7 @@ FUENTES_RSS = [
     {"nombre": "Semana", "url": "https://www.semana.com/arc/outboundfeeds/rss/?outputType=xml", "categorias": ["general", "politica", "economia", "cultura", "deportes", "tecnologia", "salud", "mundo", "vida", "tendencias"], "tipo": "nacional"},
     {"nombre": "Infobae Colombia", "url": "https://www.infobae.com/arc/outboundfeeds/rss/category/colombia/", "categorias": ["general", "colombia", "politica", "economia", "tecnologia"], "tipo": "nacional"},
     {"nombre": "Google News — Colombia", "url": "https://news.google.com/rss/search?q=colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "colombia"], "tipo": "nacional"},
+    {"nombre": "Google News — Guias de Servicio", "url": "https://news.google.com/rss/search?q=(como+hacer+OR+como+solicitar+OR+guia+de)+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "vida", "mis finanzas"], "tipo": "nacional"},
 
     # ── MUNDO ───────────────────────────────────────────────────
     {"nombre": "BBC Mundo", "url": "https://feeds.bbci.co.uk/mundo/rss.xml", "categorias": ["general", "mundo", "politica", "cultura", "tecnologia", "deportes", "salud", "vida"], "tipo": "mundo"},
@@ -55,6 +59,7 @@ FUENTES_RSS = [
     {"nombre": "El País América", "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", "categorias": ["general", "mundo", "politica", "cultura"], "tipo": "mundo"},
     {"nombre": "DW Español", "url": "https://rss.dw.com/xml/rss-sp-all", "categorias": ["mundo", "politica", "economia"], "tipo": "mundo"},
     {"nombre": "France 24 Español", "url": "https://www.france24.com/es/rss", "categorias": ["mundo", "politica"], "tipo": "mundo"},
+    {"nombre": "TN Argentina", "url": "https://news.google.com/rss/search?q=site:tn.com.ar&hl=es-419&gl=AR&ceid=AR:es-419", "categorias": ["mundo", "general", "tendencias", "tecnologia", "vida"], "tipo": "mundo", "permitir_argentina": True},
 ]
 
 DOMINIOS_ARGENTINA = [
@@ -62,6 +67,10 @@ DOMINIOS_ARGENTINA = [
     "lavoz.com.ar", "ole.com.ar", "mdzol.com",
     "la100.cienradios.com", "elle.clarin.com",
 ]
+
+DOMINIOS_ARGENTINA_PERMITIDOS = {
+    "tn.com.ar",
+}
 
 DOMINIOS_BLOQUEADOS = [
     "portafolio.co", "eltiempo.com",
@@ -94,6 +103,7 @@ CATEGORIAS_RELACIONADAS = {
     "mis finanzas": {"mis finanzas", "finanzas", "economia"},
     "tecnologia": {"tecnologia", "tendencias"},
     "economia": {"economia", "finanzas", "negocios", "mis finanzas"},
+    "evergreen": {"vida", "salud", "tecnologia", "negocios", "finanzas", "mis finanzas", "tendencias"},
 }
 
 MARCADORES_COLOMBIA = ("colombia", "colombiano", "bogota", "medellin", "cali", "barranquilla", "dian", "minsalud")
@@ -143,6 +153,8 @@ def cargar_dominios_permitidos():
 
     if "news.google.com" in dominios:
         dominios.remove("news.google.com")
+
+    dominios.update(DOMINIOS_ARGENTINA_PERMITIDOS)
         
     return dominios
 

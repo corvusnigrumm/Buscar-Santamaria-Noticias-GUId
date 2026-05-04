@@ -1,15 +1,31 @@
 import sys
 import os
+
+# Cargar .env (funciona tanto en desarrollo como en exe compilado)
+try:
+    from dotenv import load_dotenv
+    _base = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    _env_path = os.path.join(_base, '.env')
+    if os.path.exists(_env_path):
+        load_dotenv(_env_path)
+    else:
+        load_dotenv()
+except ImportError:
+    pass
 import time
 import asyncio
+import threading
+import subprocess
+from datetime import date, datetime
 from threading import Thread
 import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
 from core.search import buscar_noticias_async
 from core.excel_exporter import GeneradorExcelIDEAS
-from core.filters import CATEGORIAS_GUI, MAPA_CATEGORIAS
+from core.filters import CATEGORIAS_GUI, MAPA_CATEGORIAS, _siguiente_nombre_tabla
 from core.logger import logger as log
+from core.config import ZONA_COLOMBIA
 
 class RedirectText:
     def __init__(self, text_ctrl):

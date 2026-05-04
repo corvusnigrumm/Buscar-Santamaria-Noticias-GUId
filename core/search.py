@@ -9,7 +9,7 @@ from core.config import (
     ZONA_COLOMBIA
 )
 from core.scraper import fetch_fuente_async
-from core.ai_tags import GeminiTagService
+from core.ai_tags import GeminiTagService, enriquecer_metadatos_seo
 from core.filters import (
     _fecha_a_date_colombia, _es_razon_medio_prohibido, _esta_bloqueado,
     _articulo_es_nacional_colombia, _articulo_cumple_filtro_mundo,
@@ -236,7 +236,11 @@ async def buscar_noticias_async(categorias_seleccionadas=None, fecha_inicio=None
                 log.info(f"  [...] {nombre}... OK {len(nuevos)} articulos")
 
         todas.sort(key=lambda a: a["fecha_dt"], reverse=True)
-        todas.sort(key=lambda a: 0 if a.get("categoria") == "TENDENCIAS" else (1 if a.get("categoria") == "ECONOMIA" else 2))
+        todas.sort(
+            key=lambda a: 0 if a.get("categoria") == "EVERGREEN"
+            else (1 if a.get("categoria") == "TENDENCIAS"
+            else (2 if a.get("categoria") == "ECONOMIA" else 3))
+        )
         resultado = todas[:max_total]
 
         # ── Enriquecimiento con Gemini AI ───────────────────
@@ -251,6 +255,9 @@ async def buscar_noticias_async(categorias_seleccionadas=None, fecha_inicio=None
                 gemini_usado = True
             elif verbose:
                 log.info("  [SKIP] Gemini AI no disponible (sin API key).")
+
+        if resultado:
+            resultado = [enriquecer_metadatos_seo(art) for art in resultado]
 
         if resultado:
             historial_actualizado = historial_articulos[:]

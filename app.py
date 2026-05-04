@@ -669,6 +669,10 @@ if 'resultado_busqueda' in st.session_state:
             if art.get("tags"):
                 row_data["Tags"] = ", ".join(art["tags"])
                 row_data["Score"] = art.get("trend_score", 0)
+            if art.get("focus_keywords"):
+                row_data["Keywords SEO"] = ", ".join(art["focus_keywords"])
+                row_data["Evergreen"] = art.get("evergreen_score", 0)
+                row_data["SEO Title"] = art.get("seo_title", "")
             tabla_preview.append(row_data)
 
         st.dataframe(tabla_preview, use_container_width=True, height=400)

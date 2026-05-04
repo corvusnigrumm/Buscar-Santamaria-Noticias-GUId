@@ -80,6 +80,7 @@ PALABRAS_TENDENCIA_VALIDAS = (
     "tendencia", "tendencias", "viral", "virales", "redes", "sociales",
     "entretenimiento", "famosos", "streaming", "moda", "belleza",
     "lifestyle", "hogar", "bienestar", "apps", "tecnologia",
+    "como", "guia", "consejos", "tips", "errores comunes", "paso a paso",
 )
 
 PALABRAS_TENDENCIA_EXCLUIDAS = (
@@ -104,40 +105,50 @@ CATEGORIA_REGLAS = {
     },
     "vida": {
         "include": ("vida", "hogar", "familia", "pareja", "viaje", "viajes", "vacaciones", "mascota", "mascotas",
-                    "cocina", "receta", "descanso", "hotel", "estilo de vida", "habitos", "bienestar", "convivencia"),
+                    "cocina", "receta", "descanso", "hotel", "estilo de vida", "habitos", "bienestar", "convivencia",
+                    "como", "guia", "consejos", "tips", "paso a paso"),
         "exclude": PALABRAS_RUIDO_GENERAL + ("dolar", "euro", "inflacion", "elecciones"),
     },
     "tendencias": {
         "include": ("tendencia", "tendencias", "viral", "virales", "redes", "streaming", "famos", "moda",
-                    "belleza", "lifestyle", "hogar", "consumo", "tecnologia", "app", "apps", "entretenimiento"),
+                    "belleza", "lifestyle", "hogar", "consumo", "tecnologia", "app", "apps", "entretenimiento",
+                    "guia", "consejos", "tips"),
         "exclude": PALABRAS_TENDENCIA_EXCLUIDAS,
     },
     "negocios": {
         "include": ("empresa", "empresas", "negocio", "negocios", "mercado", "industria", "comercio", "startup",
                     "startups", "emprendimiento", "inversion", "alianza", "ventas", "consumo", "supermercados",
-                    "clientes", "empresarial"),
+                    "clientes", "empresarial", "como", "guia", "estrategia", "productividad"),
         "exclude": PALABRAS_RUIDO_GENERAL,
     },
     "finanzas": {
         "include": ("finanzas", "banco", "banca", "credito", "deuda", "ahorro", "inversion", "bolsa",
                     "dolar", "euro", "inflacion", "tasa", "tasas", "trm", "divisa", "cotizacion",
-                    "mercado", "hacienda", "tributaria", "tributario"),
+                    "mercado", "hacienda", "tributaria", "tributario", "presupuesto", "como ahorrar"),
         "exclude": PALABRAS_RUIDO_GENERAL,
     },
     "mis finanzas": {
         "include": ("finanzas personales", "ahorro", "ahorrar", "tarjeta", "credito", "subsidio", "dian", "impuesto",
-                    "renta", "pension", "cesant", "presupuesto", "factura", "devolucion", "iva", "bolsillo", "pagar"),
+                    "renta", "pension", "cesant", "presupuesto", "factura", "devolucion", "iva", "bolsillo", "pagar",
+                    "como solicitar", "paso a paso", "guia"),
         "exclude": PALABRAS_RUIDO_GENERAL,
     },
     "tecnologia": {
         "include": ("tecnologia", "ia", "inteligencia artificial", "app", "apps", "celular", "iphone", "android",
-                    "samsung", "internet", "starlink", "robotica", "software", "digital", "startup", "ciberseguridad", "datos"),
+                    "samsung", "internet", "starlink", "robotica", "software", "digital", "startup", "ciberseguridad", "datos",
+                    "como funciona", "guia", "tutorial"),
         "exclude": PALABRAS_RUIDO_GENERAL,
     },
     "cultura": {
         "include": ("cultura", "cine", "musica", "libro", "libros", "teatro", "arte", "artista", "festival",
                     "museo", "concierto", "pelicula", "peliculas", "serie", "series", "literatura", "danza", "netflix"),
         "exclude": PALABRAS_RUIDO_GENERAL + ("dolar", "inflacion", "gasolina"),
+    },
+    "evergreen": {
+        "include": ("como", "guia", "consejos", "tips", "paso a paso", "que es", "para que sirve", "errores comunes",
+                    "beneficios", "claves", "habitos", "estrategias", "presupuesto", "ahorro", "bienestar",
+                    "finanzas personales", "productividad", "rutina", "tutorial"),
+        "exclude": PALABRAS_RUIDO_GENERAL + PALABRAS_TENDENCIA_EXCLUIDAS + ("ultima hora", "urgente", "hoy", "ayer"),
     },
 }
 
@@ -1205,6 +1216,8 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
     if filtrar_argentina:
         for dominio in DOMINIOS_ARGENTINA:
             if dominio in url_lower:
+                if dominio in DOMINIOS_ARGENTINA_PERMITIDOS:
+                    continue
                 return True, f"Dominio Argentina: {dominio}"
 
     # ── Firmas textuales ─────────────────────────────────────────────────
@@ -2007,6 +2020,8 @@ CATEGORIAS_GUI = [
     "Negocios", "Colombia", "Vida", "Bogotá", "Mis Finanzas",
 ]
 
+CATEGORIAS_GUI.append("Evergreen")
+
 MAPA_CATEGORIAS = {
     "Tendencias": ["tendencias"],
     "Finanzas": ["finanzas"],
@@ -2023,5 +2038,6 @@ MAPA_CATEGORIAS = {
     "Vida": ["vida"],
     "Bogotá": ["bogota"],
     "Mis Finanzas": ["mis finanzas"],
+    "Evergreen": ["evergreen"],
 }
 
