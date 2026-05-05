@@ -8,7 +8,7 @@ import unicodedata
 from core.logger import logger as log
 from core.filters import DATA_APP_DIR
 
-CACHE_FILE = os.path.join(DATA_APP_DIR, "ai_tags_cache.json")
+CACHE_FILE = os.path.join(DATA_APP_DIR, "ai_tags_cache_v2.json")
 _cache = {}
 
 def _cargar_cache():
