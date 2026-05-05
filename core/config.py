@@ -18,10 +18,10 @@ HEADERS = {
 FUENTES_RSS = [
     # ── TENDENCIAS (prioridad alta) ─────────────────────────────
     {"nombre": "Digital Trends Español", "url": "https://es.digitaltrends.com/feed/", "categorias": ["tendencias", "tecnologia"], "tipo": "nacional"},
-    {"nombre": "Revista PYM", "url": "https://www.revistapym.com.co/feed", "categorias": ["tendencias", "negocios", "cultura"], "tipo": "nacional"},
+    {"nombre": "Revista PYM", "url": "https://news.google.com/rss/search?q=site:revistapym.com.co&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias", "negocios", "cultura"], "tipo": "nacional"},
     {"nombre": "Cultura Colectiva", "url": "https://news.culturacolectiva.com/feed/", "categorias": ["tendencias", "cultura", "vida"], "tipo": "mundo"},
-    {"nombre": "Verne — El País", "url": "https://verne.elpais.com/feed/", "categorias": ["tendencias", "vida", "cultura"], "tipo": "mundo"},
-    {"nombre": "Muy Interesante", "url": "https://www.muyinteresante.es/feed", "categorias": ["tendencias", "tecnologia", "salud"], "tipo": "mundo"},
+    {"nombre": "El País — Tendencias", "url": "https://news.google.com/rss/search?q=site:elpais.com+tendencias&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias", "vida", "cultura"], "tipo": "mundo"},
+    {"nombre": "GNews — Ciencia y Salud", "url": "https://news.google.com/rss/search?q=ciencia+tecnologia+salud&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias", "tecnologia", "salud"], "tipo": "mundo"},
     {"nombre": "Google News — Tendencias", "url": "https://news.google.com/rss/search?q=tendencias+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias"], "tipo": "nacional"},
     {"nombre": "Google News — Evergreen Colombia", "url": "https://news.google.com/rss/search?q=(como+OR+guia+OR+consejos+OR+tips)+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias", "vida", "tecnologia"], "tipo": "nacional"},
     {"nombre": "Google News — Ideas Evergreen", "url": "https://news.google.com/rss/search?q=(que+es+OR+para+que+sirve+OR+errores+comunes)+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tendencias", "vida", "salud", "tecnologia"], "tipo": "nacional"},
@@ -32,15 +32,15 @@ FUENTES_RSS = [
     {"nombre": "Forbes Colombia", "url": "https://forbes.co/seccion/economia-y-finanzas/", "categorias": ["economia", "finanzas", "negocios"], "tipo": "nacional"},
     {"nombre": "La Nota Económica", "url": "https://lanotaeconomica.com.co/feed/", "categorias": ["economia", "negocios", "mis finanzas", "finanzas"], "tipo": "nacional"},
     {"nombre": "Mis Finanzas Personales", "url": "https://misfinanzaspersonales.co/feed/", "categorias": ["finanzas", "mis finanzas", "economia"], "tipo": "nacional"},
-    {"nombre": "Bloomberg Línea", "url": "https://www.bloomberglinea.com/feed/", "categorias": ["finanzas", "economia", "negocios", "mundo"], "tipo": "mundo"},
+    {"nombre": "Bloomberg Línea", "url": "https://news.google.com/rss/search?q=site:bloomberglinea.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["finanzas", "economia", "negocios", "mundo"], "tipo": "mundo"},
     {"nombre": "Google News — Finanzas CO", "url": "https://news.google.com/rss/search?q=finanzas+personales+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["finanzas", "mis finanzas"], "tipo": "nacional"},
     {"nombre": "Google News — Ahorro y Bolsillo", "url": "https://news.google.com/rss/search?q=(ahorro+OR+presupuesto+OR+tarjeta+de+credito+OR+subsidio)+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["finanzas", "mis finanzas"], "tipo": "nacional"},
 
     # ── ECONOMÍA ────────────────────────────────────────────────
     {"nombre": "El Colombiano — Negocios", "url": "https://www.elcolombiano.com/rss/negocios.xml", "categorias": ["economia", "negocios"], "tipo": "nacional"},
     {"nombre": "Agronegocios", "url": "https://www.agronegocios.co/rss/", "categorias": ["economia", "negocios"], "tipo": "nacional"},
-    {"nombre": "FMI — Artículos", "url": "https://www.imf.org/es/news/rss", "categorias": ["economia", "mundo", "finanzas"], "tipo": "mundo"},
-    {"nombre": "Banco Mundial — LAC", "url": "https://feeds.worldbank.org/world-bank/rss/press-releases/es", "categorias": ["economia", "mundo"], "tipo": "mundo"},
+    {"nombre": "FMI — Artículos", "url": "https://news.google.com/rss/search?q=site:imf.org/es+economia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["economia", "mundo", "finanzas"], "tipo": "mundo"},
+    {"nombre": "Banco Mundial — LAC", "url": "https://news.google.com/rss/search?q=site:bancomundial.org+economia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["economia", "mundo"], "tipo": "mundo"},
     {"nombre": "BID — Mejorando Vidas", "url": "https://blogs.iadb.org/feed/", "categorias": ["economia", "mundo"], "tipo": "mundo"},
     {"nombre": "Google News — Economía", "url": "https://news.google.com/rss/search?q=economia+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["economia"], "tipo": "nacional"},
 
@@ -55,7 +55,7 @@ FUENTES_RSS = [
 
     # ── MUNDO ───────────────────────────────────────────────────
     {"nombre": "BBC Mundo", "url": "https://feeds.bbci.co.uk/mundo/rss.xml", "categorias": ["general", "mundo", "politica", "cultura", "tecnologia", "deportes", "salud", "vida"], "tipo": "mundo"},
-    {"nombre": "CNN Español", "url": "https://cnnespanol.cnn.com/feed/", "categorias": ["general", "mundo", "politica", "tecnologia", "deportes", "salud", "vida"], "tipo": "mundo"},
+    {"nombre": "CNN Español", "url": "https://news.google.com/rss/search?q=site:cnnespanol.cnn.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "mundo", "politica", "tecnologia", "deportes", "salud", "vida"], "tipo": "mundo"},
     {"nombre": "El País América", "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", "categorias": ["general", "mundo", "politica", "cultura"], "tipo": "mundo"},
     {"nombre": "DW Español", "url": "https://rss.dw.com/xml/rss-sp-all", "categorias": ["mundo", "politica", "economia"], "tipo": "mundo"},
     {"nombre": "France 24 Español", "url": "https://www.france24.com/es/rss", "categorias": ["mundo", "politica"], "tipo": "mundo"},
