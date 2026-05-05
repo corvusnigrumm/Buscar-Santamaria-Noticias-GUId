@@ -673,6 +673,9 @@ if 'resultado_busqueda' in st.session_state:
                 row_data["Keywords SEO"] = ", ".join(art["focus_keywords"])
                 row_data["Evergreen"] = art.get("evergreen_score", 0)
                 row_data["SEO Title"] = art.get("seo_title", "")
+            if art.get("visibility_potential"):
+                row_data["Visibilidad"] = art.get("visibility_potential", "")
+                row_data["Audiencia"] = art.get("target_audience", "")
             tabla_preview.append(row_data)
 
         st.dataframe(tabla_preview, use_container_width=True, height=400)

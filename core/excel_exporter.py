@@ -116,6 +116,8 @@ class GeneradorExcelIDEAS:
             ("EVERGREEN", "0088DD"),
             ("INTENCION SEO", "FF6644"),
             ("RAZON INTENCION", "44FF88"),
+            ("VISIBILIDAD", "FF9900"),
+            ("AUDIENCIA", "0099FF"),
         ]
         for ci, (h, c) in enumerate(headers, 1):
             cell = ws.cell(row=1, column=ci, value=h)
@@ -255,6 +257,18 @@ class GeneradorExcelIDEAS:
             c.fill = fill
             c.border = borde
 
+            c = ws.cell(row=row, column=15, value=(art.get("visibility_potential", "") or "").upper())
+            c.font = Font(name=self.FONT_NAME, size=9, bold=True, color="333333")
+            c.alignment = Alignment(horizontal="center", vertical="center")
+            c.fill = fill
+            c.border = borde
+
+            c = ws.cell(row=row, column=16, value=art.get("target_audience", ""))
+            c.font = Font(name=self.FONT_NAME, size=9, color="555555")
+            c.alignment = al
+            c.fill = fill
+            c.border = borde
+
             ws.row_dimensions[row].height = 22
 
         widths = {
@@ -272,13 +286,15 @@ class GeneradorExcelIDEAS:
             "L": 12,
             "M": 18,
             "N": 32,
+            "O": 16,
+            "P": 25,
         }
         for col, width in widths.items():
             ws.column_dimensions[col].width = width
 
         uf = len(arts) + 1
         if uf > 1:
-            ws.auto_filter.ref = f"A1:N{uf}"
+            ws.auto_filter.ref = f"A1:P{uf}"
         ws.freeze_panes = "A2"
 
     def _aplicar_score(
