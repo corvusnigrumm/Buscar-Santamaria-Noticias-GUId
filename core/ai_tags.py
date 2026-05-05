@@ -241,7 +241,7 @@ class GeminiTagService:
         bloque = "\n\n".join(articulos_texto)
 
         return f"""Eres un analista SEO experto en tendencias de noticias en Colombia y Latinoamérica.
-Genera para cada artículo: tags (3-5 keywords SEO relevantes), trend_score (0-100), trend_reason (máximo 15 palabras), seo_angle (máximo 12 palabras), visibility_potential (Alto, Medio o Bajo, evaluando su viralidad) y target_audience (1-3 palabras, a quién va dirigido).
+Genera para cada artículo: tags (3-5 keywords SEO relevantes), trend_score (0-100), trend_reason (máximo 15 palabras), seo_angle (máximo 12 palabras), visibility_score (0-100, estimando su potencial de tráfico orgánico o viralidad) y target_audience (1-3 palabras, a quién va dirigido).
 
 ARTÍCULOS:
 {bloque}
@@ -250,7 +250,7 @@ Responde ÚNICAMENTE con un JSON object válido que contenga un array llamado "r
 Formato exacto:
 {{
   "resultados": [
-    {{"id": 0, "tags": ["tag1", "tag2"], "trend_score": 75, "trend_reason": "Razón breve", "seo_angle": "Guia practica", "visibility_potential": "Alto", "target_audience": "Público General"}}
+    {{"id": 0, "tags": ["tag1", "tag2"], "trend_score": 75, "trend_reason": "Razón breve", "seo_angle": "Guia practica", "visibility_score": 85, "target_audience": "Público General"}}
   ]
 }}"""
 
@@ -297,7 +297,7 @@ Formato exacto:
                 art["trend_score"] = cached.get("trend_score", 0)
                 art["trend_reason"] = cached.get("trend_reason", "")
                 art["seo_angle"] = cached.get("seo_angle", "")
-                art["visibility_potential"] = cached.get("visibility_potential", "")
+                art["visibility_score"] = cached.get("visibility_score", 0)
                 art["target_audience"] = cached.get("target_audience", "")
                 art.update(enriquecer_metadatos_seo(art))
                 procesados += 1
@@ -332,7 +332,7 @@ Formato exacto:
                         art["trend_score"] = item.get("trend_score", 0)
                         art["trend_reason"] = item.get("trend_reason", "")
                         art["seo_angle"] = item.get("seo_angle", "")
-                        art["visibility_potential"] = item.get("visibility_potential", "")
+                        art["visibility_score"] = item.get("visibility_score", 0)
                         art["target_audience"] = item.get("target_audience", "")
                         art.update(enriquecer_metadatos_seo(art))
 
@@ -342,7 +342,7 @@ Formato exacto:
                             "trend_score": art["trend_score"],
                             "trend_reason": art["trend_reason"],
                             "seo_angle": art.get("seo_angle", ""),
-                            "visibility_potential": art.get("visibility_potential", ""),
+                            "visibility_score": art.get("visibility_score", 0),
                             "target_audience": art.get("target_audience", ""),
                         }
             else:
@@ -352,7 +352,7 @@ Formato exacto:
                     art.setdefault("trend_score", 0)
                     art.setdefault("trend_reason", "Sin datos")
                     art.setdefault("seo_angle", "")
-                    art.setdefault("visibility_potential", "")
+                    art.setdefault("visibility_score", 0)
                     art.setdefault("target_audience", "")
                     art.update(enriquecer_metadatos_seo(art))
 
