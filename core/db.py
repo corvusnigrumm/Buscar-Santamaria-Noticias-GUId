@@ -89,6 +89,16 @@ class DBManager:
                     session.commit()
                     logger.info(f"Se limpiaron {to_delete} artículos antiguos del historial.")
 
+    @staticmethod
+    def limpiar_cache_hoy():
+        from datetime import date
+        with DBManager.get_session() as session:
+            hoy = date.today()
+            inicio_dia = datetime(hoy.year, hoy.month, hoy.day)
+            borrados = session.query(ArticuloHistorico).filter(ArticuloHistorico.fecha_registro >= inicio_dia).delete(synchronize_session=False)
+            session.commit()
+            return borrados
+
     # ------ Medios Prohibidos ------
     @staticmethod
     def existe_medio_prohibido(ancla: str) -> bool:

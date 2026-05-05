@@ -454,6 +454,15 @@ with st.sidebar:
                 st.session_state[f"cat_{cat}"] = False
             st.rerun()
 
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🧹 Borrar Caché de Hoy", use_container_width=True, help="Elimina del historial SOLO las noticias descargadas hoy, para volver a buscarlas sin revivir las viejas."):
+        from core.db import DBManager
+        try:
+            borrados = DBManager.limpiar_cache_hoy()
+            st.toast(f"✅ Se borraron {borrados} artículos del historial de hoy.")
+        except Exception as e:
+            st.error(f"Error al limpiar caché: {e}")
+
     st.markdown("---")
     categorias_seleccionadas_gui = []
 
