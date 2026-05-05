@@ -8,7 +8,7 @@ import unicodedata
 from core.logger import logger as log
 from core.filters import DATA_APP_DIR
 
-CACHE_FILE = os.path.join(DATA_APP_DIR, "ai_tags_cache_v2.json")
+CACHE_FILE = os.path.join(DATA_APP_DIR, "ai_tags_cache_v3.json")
 _cache = {}
 
 def _cargar_cache():
@@ -141,7 +141,13 @@ def enriquecer_metadatos_seo(articulo: dict) -> dict:
     keywords = _keywords_desde_articulo({**art, "tags": tags})
     keyword_principal = keywords[0] if keywords else categoria.title()
 
-    seo_title = _recortar(f"{titulo} | {categoria.title()} | Santamaria", 67)
+    max_title_len = 68
+    suffix = " | Santamaria"
+    if len(titulo) + len(suffix) <= max_title_len:
+        seo_title = f"{titulo}{suffix}"
+    else:
+        avail = max_title_len - len(suffix) - 3
+        seo_title = f"{titulo[:avail].strip()}...{suffix}" if avail > 0 else titulo[:max_title_len]
     meta_seed = resumen or titulo
     meta_description = _recortar(
         f"{meta_seed} Claves SEO sobre {keyword_principal.lower()} y contexto de {categoria.lower()}.",
@@ -332,7 +338,10 @@ Formato exacto:
                         art["trend_score"] = item.get("trend_score", 0)
                         art["trend_reason"] = item.get("trend_reason", "")
                         art["seo_angle"] = item.get("seo_angle", "")
-                        art["visibility_score"] = item.get("visibility_score", 0)
+                        try:
+                            art["visibility_score"] = int(item.get("visibility_score", 0))
+                        except (ValueError, TypeError):
+                            art["visibility_score"] = 0
                         art["target_audience"] = item.get("target_audience", "")
                         art.update(enriquecer_metadatos_seo(art))
 
