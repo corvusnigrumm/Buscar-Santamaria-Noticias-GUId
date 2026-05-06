@@ -770,8 +770,8 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
     except Exception:
         pass
 
-    if "redmas.com.co" in url_lower or "cronista.com" in url_lower:
-        return True, "Filtro manual redmas/cronista"
+    if "redmas.com.co" in url_lower:
+        return True, "Filtro manual redmas"
 
     for dominio in DOMINIOS_BLOQUEADOS:
         if dominio in url_lower:

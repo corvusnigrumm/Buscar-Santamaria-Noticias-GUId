@@ -180,7 +180,7 @@ FUENTES_RSS = [
 # ─────────────────────────────────────────────
 DOMINIOS_BLOQUEADOS = {
     "portafolio.co", "eltiempo.com", "citytv.com.co",
-    "cronista.com", "enter.co",
+    "enter.co",
 }
 
 PATRONES_SPAM = [

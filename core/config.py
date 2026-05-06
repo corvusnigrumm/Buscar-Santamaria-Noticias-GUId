@@ -76,7 +76,7 @@ DOMINIOS_BLOQUEADOS = [
     "portafolio.co", "eltiempo.com",
     "blogs.portafolio.co", "amp.portafolio.co", "m.portafolio.co",
     "amp.eltiempo.com", "m.eltiempo.com", "especiales.eltiempo.com",
-    "enter.co", "citytv.com.co", "cronista.com",
+    "enter.co", "citytv.com.co",
 ]
 
 MEDIOS_PROHIBIDOS = {
