@@ -181,6 +181,8 @@ FUENTES_RSS = [
 DOMINIOS_BLOQUEADOS = {
     "portafolio.co", "eltiempo.com", "citytv.com.co",
     "enter.co",
+    # El Cronista — bloqueado completamente
+    "cronista.com", "colombia.cronista.com",
 }
 
 PATRONES_SPAM = [

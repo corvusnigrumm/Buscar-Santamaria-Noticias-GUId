@@ -77,6 +77,9 @@ DOMINIOS_BLOQUEADOS = [
     "blogs.portafolio.co", "amp.portafolio.co", "m.portafolio.co",
     "amp.eltiempo.com", "m.eltiempo.com", "especiales.eltiempo.com",
     "enter.co", "citytv.com.co",
+    # El Cronista — bloqueado completamente
+    "cronista.com", "www.cronista.com", "m.cronista.com",
+    "amp.cronista.com", "colombia.cronista.com",
 ]
 
 MEDIOS_PROHIBIDOS = {
@@ -91,7 +94,14 @@ MEDIOS_PROHIBIDOS = {
         "lista_negra_url": "https://www.portafolio.co/rss",
         "dominios": ["portafolio.co", "blogs.portafolio.co"],
         "signatures": ["portafolio digital", "suscribete a portafolio"],
-    }
+    },
+    "el_cronista": {
+        "label": "El Cronista",
+        "lista_negra_url": "https://www.cronista.com/rss",
+        "dominios": ["cronista.com", "www.cronista.com", "m.cronista.com",
+                     "amp.cronista.com", "colombia.cronista.com"],
+        "signatures": ["el cronista", "cronista.com", "cronista comercial"],
+    },
 }
 
 CATEGORIAS_RELACIONADAS = {
@@ -125,7 +135,7 @@ def cargar_dominios_permitidos():
     dominios = set()
     dir_actual = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     excel_path = os.path.join(dir_actual, 'Fuentes_SEO.xlsx')
-    
+
     try:
         if os.path.exists(excel_path):
             dfs = pd.read_excel(excel_path, sheet_name=None, header=None)
@@ -155,7 +165,7 @@ def cargar_dominios_permitidos():
         dominios.remove("news.google.com")
 
     dominios.update(DOMINIOS_ARGENTINA_PERMITIDOS)
-        
+
     return dominios
 
 DOMINIOS_PERMITIDOS = cargar_dominios_permitidos()
