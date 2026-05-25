@@ -1239,6 +1239,10 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
     if 'source="citytv"' in texto_lower or '>citytv</' in texto_lower:
         return True, "Firma oculta RSS: CityTV"
 
+    # Filtro duro para El Cronista
+    if "cronista" in titulo.lower() or "cronista" in url_lower or "cronista" in fuente_lower:
+        return True, "Filtro duro: El Cronista"
+
     return False, ""
 
 
