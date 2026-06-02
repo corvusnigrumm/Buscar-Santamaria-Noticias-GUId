@@ -93,6 +93,31 @@ BLOCKED_SOURCES = {
             "ELTIEMPO",
         ],
     },
+
+    "elcronista": {
+        "display_name": "El Cronista",
+        "domains": [
+            "cronista.com",
+            "www.cronista.com",
+            "m.cronista.com",
+            "amp.cronista.com",
+            "colombia.cronista.com",
+        ],
+        "url_patterns": [
+            r"cronista\.com/",
+            r"cronista\.com$",
+        ],
+        "content_signatures": [
+            "cronista.com",
+            "El Cronista",
+            "EL CRONISTA",
+            "Cronista Comercial",
+        ],
+        "meta_signatures": [
+            "cronista",
+            "El Cronista",
+        ],
+    },
 }
 
 # IPs conocidas (como capa adicional; se puede expandir con nslookup)

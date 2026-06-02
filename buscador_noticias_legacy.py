@@ -695,7 +695,7 @@ DOMINIOS_BLOQUEADOS = [
     "portafolio.co", "eltiempo.com",
     "blogs.portafolio.co", "amp.portafolio.co", "m.portafolio.co",
     "amp.eltiempo.com", "m.eltiempo.com", "especiales.eltiempo.com",
-    "enter.co", "citytv.com.co", "cronista.com",
+    "enter.co", "citytv.com.co",
 ]
 
 MEDIOS_PROHIBIDOS = {
@@ -757,24 +757,6 @@ MEDIOS_PROHIBIDOS = {
             "citynoticias",
         ],
         "lista_negra_url": "https://news.google.com/rss/search?q=site:citytv.com.co&hl=es-419&gl=CO&ceid=CO:es-419",
-    },
-    "cronista": {
-        "label": "El Cronista",
-        "dominios": [
-            "cronista.com", "www.cronista.com",
-        ],
-        "source_aliases": [
-            "el cronista", "cronista", "cronista.com",
-        ],
-        "title_aliases": [
-            "el cronista", "cronista", "cronista.com",
-        ],
-        "signatures": [
-            "cronista.com",
-            "el cronista",
-            "cronista mexico",
-        ],
-        "lista_negra_url": "https://news.google.com/rss/search?q=site:cronista.com&hl=es-419&gl=CO&ceid=CO:es-419",
     },
 }
 
@@ -1973,8 +1955,8 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
     except Exception:
         pass
 
-    if "redmas.com.co" in url_lower or "cronista.com" in url_lower:
-        return True, "Filtro manual redmas/cronista"
+    if "redmas.com.co" in url_lower:
+        return True, "Filtro manual redmas"
 
     for dominio in DOMINIOS_BLOQUEADOS:
         if dominio in url_lower:
@@ -2004,6 +1986,9 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
         return True, "Firma oculta RSS: El Tiempo"
     if 'source="citytv"' in texto_lower or '>citytv</' in texto_lower:
         return True, "Firma oculta RSS: CityTV"
+    # Filtro duro para El Cronista
+    if "cronista" in titulo.lower() or "cronista" in url.lower() or "cronista" in fuente_rss.lower():
+        return True, "Filtro duro: El Cronista"
 
     return False, ""
 

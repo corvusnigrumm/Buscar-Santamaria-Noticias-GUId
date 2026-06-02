@@ -150,6 +150,23 @@ CATEGORIA_REGLAS = {
                     "finanzas personales", "productividad", "rutina", "tutorial"),
         "exclude": PALABRAS_RUIDO_GENERAL + PALABRAS_TENDENCIA_EXCLUIDAS + ("ultima hora", "urgente", "hoy", "ayer"),
     },
+    "medio ambiente": {
+        "include": ("medio ambiente", "ambiental", "sostenibilidad", "clima", "climatico", "cambio climatico",
+                    "naturaleza", "ecologia", "verde", "energia renovable", "emisiones", "contaminacion",
+                    "biodiversidad", "reciclaje", "planeta", "calentamiento global"),
+        "exclude": PALABRAS_RUIDO_GENERAL + ("dolar", "inflacion", "deportes", "futbol"),
+    },
+    "empleo": {
+        "include": ("empleo", "trabajo", "vacante", "vacantes", "oferta laboral", "ofertas laborales",
+                    "contratar", "contratacion", "sena", "convocatoria", "salario", "teletrabajo", "practicas",
+                    "hoja de vida", "entrevista"),
+        "exclude": PALABRAS_RUIDO_GENERAL,
+    },
+    "transporte": {
+        "include": ("transporte", "transmilenio", "movilidad", "vuelo", "vuelos", "aerolinea", "aerolineas",
+                    "pasajes", "rutas", "trafico", "peaje", "peajes", "carretera", "vias", "metro"),
+        "exclude": PALABRAS_RUIDO_GENERAL,
+    },
 }
 
 
@@ -1205,8 +1222,8 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
     except Exception:
         pass
 
-    if "redmas.com.co" in url_lower or "cronista.com" in url_lower:
-        return True, "Filtro manual redmas/cronista"
+    if "redmas.com.co" in url_lower:
+        return True, "Filtro manual redmas"
 
     for dominio in DOMINIOS_BLOQUEADOS:
         if dominio in url_lower:
@@ -1238,6 +1255,10 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
         return True, "Firma oculta RSS: El Tiempo"
     if 'source="citytv"' in texto_lower or '>citytv</' in texto_lower:
         return True, "Firma oculta RSS: CityTV"
+
+    # Filtro duro para El Cronista
+    if "cronista" in titulo.lower() or "cronista" in url_lower or "cronista" in fuente_lower:
+        return True, "Filtro duro: El Cronista"
 
     return False, ""
 
@@ -2018,6 +2039,7 @@ CATEGORIAS_GUI = [
     "Tendencias", "Finanzas", "Economía", "General", "Política",
     "Deportes", "Tecnología", "Cultura", "Mundo", "Salud",
     "Negocios", "Colombia", "Vida", "Bogotá", "Mis Finanzas",
+    "Medio Ambiente", "Empleo", "Transporte",
 ]
 
 CATEGORIAS_GUI.append("Evergreen")
@@ -2038,6 +2060,9 @@ MAPA_CATEGORIAS = {
     "Vida": ["vida"],
     "Bogotá": ["bogota"],
     "Mis Finanzas": ["mis finanzas"],
+    "Medio Ambiente": ["medio ambiente"],
+    "Empleo": ["empleo"],
+    "Transporte": ["transporte"],
     "Evergreen": ["evergreen"],
 }
 

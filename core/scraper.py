@@ -22,9 +22,12 @@ async def fetch_rss_async(session, url, max_retries=3):
     """Descarga el contenido de la URL de forma asíncrona usando aiohttp."""
     for attempt in range(max_retries):
         try:
-            async with session.get(url, headers=HEADERS, timeout=TIMEOUT) as resp:
+            async with session.get(url, headers=HEADERS, timeout=15) as resp:
                 if resp.status == 429:
-                    await asyncio.sleep(1.5 ** attempt)
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                if resp.status >= 500:
+                    await asyncio.sleep(2 ** attempt)
                     continue
                 if resp.status != 200:
                     return None
@@ -37,8 +40,12 @@ async def fetch_rss_async(session, url, max_retries=3):
                     return contenido.decode(encoding)
                 except Exception:
                     return contenido.decode("utf-8", errors="replace")
+        except asyncio.TimeoutError:
+            await asyncio.sleep(2 ** attempt)
+            continue
         except Exception:
-            pass
+            await asyncio.sleep(2 ** attempt)
+            continue
     return None
 
 def _parsear_fecha_rss(fecha_str):

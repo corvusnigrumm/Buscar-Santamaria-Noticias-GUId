@@ -770,8 +770,8 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
     except Exception:
         pass
 
-    if "redmas.com.co" in url_lower or "cronista.com" in url_lower:
-        return True, "Filtro manual redmas/cronista"
+    if "redmas.com.co" in url_lower:
+        return True, "Filtro manual redmas"
 
     for dominio in DOMINIOS_BLOQUEADOS:
         if dominio in url_lower:
@@ -799,6 +799,9 @@ def _esta_bloqueado(url, titulo="", descripcion="", fuente_rss="", filtrar_argen
 
     if 'source="el tiempo"' in texto_lower or '>el tiempo</' in texto_lower:
         return True, "Firma oculta RSS: El Tiempo"
+    # Filtro duro para El Cronista
+    if "cronista" in titulo.lower() or "cronista" in url.lower() or "cronista" in fuente_rss.lower():
+        return True, "Filtro duro: El Cronista"
 
     return False, ""
 
