@@ -89,7 +89,7 @@ async def _cargar_lista_negra_medios_async(session, fecha_inicio=None, fecha_fin
         )
 
 async def buscar_noticias_async(categorias_seleccionadas=None, fecha_inicio=None, fecha_fin=None,
-                    max_por_fuente=10, max_total=1000, verbose=True,
+                    max_por_fuente=20, max_total=1000, verbose=True,
                     tipo_noticias="ambas", filtrar_argentina=True,
                     usar_gemini=True):
 
@@ -131,7 +131,13 @@ async def buscar_noticias_async(categorias_seleccionadas=None, fecha_inicio=None
         historial_articulos = _cargar_historial_articulos()
         historial_hashes, historial_por_ancla = _indexar_historial_articulos(historial_articulos)
 
-        tasks = [fetch_fuente_async(session, f, fecha_inicio, fecha_fin) for f in fuentes]
+        sem = asyncio.Semaphore(15)
+
+        async def fetch_with_sem(f):
+            async with sem:
+                return await fetch_fuente_async(session, f, fecha_inicio, fecha_fin)
+
+        tasks = [fetch_with_sem(f) for f in fuentes]
         resultados = await asyncio.gather(*tasks, return_exceptions=True)
 
         for fuente, r in zip(fuentes, resultados):

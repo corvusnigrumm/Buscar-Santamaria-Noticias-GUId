@@ -57,9 +57,35 @@ FUENTES_RSS = [
     {"nombre": "BBC Mundo", "url": "https://feeds.bbci.co.uk/mundo/rss.xml", "categorias": ["general", "mundo", "politica", "cultura", "tecnologia", "deportes", "salud", "vida"], "tipo": "mundo"},
     {"nombre": "CNN Español", "url": "https://news.google.com/rss/search?q=site:cnnespanol.cnn.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "mundo", "politica", "tecnologia", "deportes", "salud", "vida"], "tipo": "mundo"},
     {"nombre": "El País América", "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", "categorias": ["general", "mundo", "politica", "cultura"], "tipo": "mundo"},
-    {"nombre": "DW Español", "url": "https://rss.dw.com/xml/rss-sp-all", "categorias": ["mundo", "politica", "economia"], "tipo": "mundo"},
+    {"nombre": "DW Español", "url": "https://rss.dw.com/xml/rss-sp-all", "categorias": ["mundo", "politica", "economia", "medio ambiente"], "tipo": "mundo"},
     {"nombre": "France 24 Español", "url": "https://www.france24.com/es/rss", "categorias": ["mundo", "politica"], "tipo": "mundo"},
     {"nombre": "TN Argentina", "url": "https://news.google.com/rss/search?q=site:tn.com.ar&hl=es-419&gl=AR&ceid=AR:es-419", "categorias": ["mundo", "general", "tendencias", "tecnologia", "vida"], "tipo": "mundo", "permitir_argentina": True},
+    
+    # ── NUEVAS FUENTES (GOBIERNO, TRANSPORTES Y MEDIOS LOCALES) ──
+    {"nombre": "Alcaldía de Bogotá", "url": "https://news.google.com/rss/search?q=site:bogota.gov.co&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "bogota", "politica"], "tipo": "nacional"},
+    {"nombre": "TransMilenio Oficial", "url": "https://news.google.com/rss/search?q=site:transmilenio.gov.co&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["transporte", "bogota", "general"], "tipo": "nacional"},
+    {"nombre": "MinAmbiente", "url": "https://news.google.com/rss/search?q=site:minambiente.gov.co&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["medio ambiente", "general", "colombia"], "tipo": "nacional"},
+    {"nombre": "ICETEX Prensa", "url": "https://news.google.com/rss/search?q=site:icetex.gov.co&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["economia", "empleo", "colombia"], "tipo": "nacional"},
+    {"nombre": "Caracol Radio", "url": "https://news.google.com/rss/search?q=site:caracol.com.co&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "economia", "colombia", "politica"], "tipo": "nacional"},
+    {"nombre": "Blu Radio", "url": "https://news.google.com/rss/search?q=site:bluradio.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "empleo", "economia", "colombia"], "tipo": "nacional"},
+    {"nombre": "Colombia.com", "url": "https://news.google.com/rss/search?q=site:colombia.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "colombia", "vida", "deportes"], "tipo": "nacional"},
+    {"nombre": "AS Colombia", "url": "https://news.google.com/rss/search?q=site:colombia.as.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["deportes", "general"], "tipo": "nacional"},
+    {"nombre": "El Colombiano — Cultura", "url": "https://www.elcolombiano.com/rss/cultura.xml", "categorias": ["cultura", "vida"], "tipo": "nacional"},
+    {"nombre": "El Colombiano — Salud", "url": "https://www.elcolombiano.com/rss/salud.xml", "categorias": ["salud", "vida"], "tipo": "nacional"},
+    {"nombre": "La FM Economía", "url": "https://news.google.com/rss/search?q=site:lafm.com.co+economia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["economia", "finanzas"], "tipo": "nacional"},
+    {"nombre": "Chica Noticias Salud", "url": "https://news.google.com/rss/search?q=site:chicanoticias.com+salud&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["salud", "vida", "tendencias"], "tipo": "nacional"},
+    {"nombre": "Aviación Line Colombia", "url": "https://news.google.com/rss/search?q=site:aviacionline.com+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["economia", "transporte", "negocios"], "tipo": "nacional"},
+
+    # ── NUEVAS FUENTES (INTERNACIONAL / CIENCIA / OTROS) ────────
+    {"nombre": "CNN Español RSS", "url": "https://cnnespanol.cnn.com/feed/", "categorias": ["general", "mundo", "politica", "tecnologia", "salud"], "tipo": "mundo"},
+    {"nombre": "National Geographic LA", "url": "https://news.google.com/rss/search?q=site:nationalgeographicla.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["medio ambiente", "salud", "tendencias", "cultura"], "tipo": "mundo"},
+    {"nombre": "Xataka", "url": "https://www.xataka.com/feedburner.xml", "categorias": ["tecnologia", "tendencias"], "tipo": "mundo"},
+    {"nombre": "Agencia SINC", "url": "https://www.agenciasinc.es/feed", "categorias": ["tecnologia", "salud", "tendencias", "medio ambiente"], "tipo": "mundo"},
+    {"nombre": "El Nacional Venezuela", "url": "https://news.google.com/rss/search?q=site:elnacional.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["mundo", "politica"], "tipo": "mundo"},
+    {"nombre": "El País América Colombia", "url": "https://news.google.com/rss/search?q=site:elpais.com+colombia&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["general", "mundo", "politica", "cultura"], "tipo": "mundo"},
+    {"nombre": "El Mueble", "url": "https://news.google.com/rss/search?q=site:elmueble.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["vida", "tendencias"], "tipo": "mundo"},
+    {"nombre": "Smithsonian Español", "url": "https://news.google.com/rss/search?q=site:smithsonianmag.com+español&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["cultura", "tendencias", "tecnologia", "medio ambiente"], "tipo": "mundo"},
+    {"nombre": "Science Focus Español", "url": "https://news.google.com/rss/search?q=site:sciencefocus.com&hl=es-419&gl=CO&ceid=CO:es-419", "categorias": ["tecnologia", "salud", "tendencias", "medio ambiente"], "tipo": "mundo"},
 ]
 
 DOMINIOS_ARGENTINA = [
@@ -100,6 +126,8 @@ MEDIOS_PROHIBIDOS = {
         "lista_negra_url": "https://www.cronista.com/rss",
         "dominios": ["cronista.com", "www.cronista.com", "m.cronista.com",
                      "amp.cronista.com", "colombia.cronista.com"],
+        "source_aliases": ["el cronista", "cronista", "cronista comercial"],
+        "title_aliases": ["el cronista", "cronista", "cronista comercial"],
         "signatures": ["el cronista", "cronista.com", "cronista comercial"],
     },
 }
@@ -113,7 +141,10 @@ CATEGORIAS_RELACIONADAS = {
     "mis finanzas": {"mis finanzas", "finanzas", "economia"},
     "tecnologia": {"tecnologia", "tendencias"},
     "economia": {"economia", "finanzas", "negocios", "mis finanzas"},
-    "evergreen": {"vida", "salud", "tecnologia", "negocios", "finanzas", "mis finanzas", "tendencias"},
+    "evergreen": {"vida", "salud", "tecnologia", "negocios", "finanzas", "mis finanzas", "tendencias", "medio ambiente", "empleo", "transporte"},
+    "medio ambiente": {"ciencia", "tendencias", "salud", "vida"},
+    "empleo": {"negocios", "finanzas", "economia", "mis finanzas", "tendencias"},
+    "transporte": {"economia", "negocios", "general", "bogota"},
 }
 
 MARCADORES_COLOMBIA = ("colombia", "colombiano", "bogota", "medellin", "cali", "barranquilla", "dian", "minsalud")
